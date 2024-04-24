@@ -31,17 +31,5 @@
             color: black;
         }
 
-        /* CSS for animation */
-        @keyframes move {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(100px); }
-        }
-
-        .animated {
-            width: 100px;
-            height: 100px;
-            background-color: red;
-            position: relative;
-            animation: move 2s linear infinite; /* Running animation continuously */
-        }
+        
 
