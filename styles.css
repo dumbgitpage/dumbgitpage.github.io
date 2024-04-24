@@ -5,8 +5,11 @@
         text-align:center;
         padding:auto;
         display: block;
-        background-color:yellow;
         color:black;
+        text-decoration: solid;
+        text-transform: capitalize;
+        text-size-adjust: auto;
+        
 }
 
         /* Basic CSS for menu bar */
