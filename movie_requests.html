@@ -3,19 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Common Web</title>
+    <title>Movie Torrent Requests</title>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js"></script>
     <style>
         /* Basic CSS styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-        }
-        h3{
-            text-align: center;
-            text-decoration: solid;
-            text-shadow: #ccc;
-            font-family: 'Courier New', Courier, monospace;
         }
         h1 {
             text-align: center;
@@ -35,82 +32,56 @@
     </style>
 </head>
 <body>
-    <h3>Common Website </h3>
-    <br>
-    <br>
-    <h1>Movie Torrent Magnet Requests</h1>
-<details> Search for movie Torrent magnet link. People don't post spam link. This website help people find the magnet link without accessing the dark web. This is open source website, please use it for good purpose only. </details>
-    <h2>Search and Filter</h2>
-    <label for="searchInput">Search:</label>
-    <input type="text" id="searchInput" oninput="searchRequests()" placeholder="Enter title">
-    <br>
+    <h1>Movie Torrent Requests</h1>
 
-    <label for="sizeFilter">Size Filter:</label>
-    <select id="sizeFilter" onchange="filterRequests()">
-        <option value="">All Sizes</option>
-        <option value="small">1</option>
-        <option value="medium">2</option>
-        <option value="large">3</option>
-    </select>
-
-    <!-- Container to display filtered requests -->
-    <div id="filteredRequestsContainer"></div>
+    <!-- Container to display existing requests -->
+    <div id="requestsContainer"></div>
 
     <p><a href="index.html">Go back to Homepage</a></p>
 
     <script>
-        // Function to fetch and display requests from Local Storage
-        function displayRequests(requests) {
-            const requestsContainer = document.getElementById('filteredRequestsContainer');
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // Get a reference to the database service
+        const database = firebase.database();
+
+        // Function to fetch and display requests from Firebase
+        function displayRequests() {
+            const requestsContainer = document.getElementById('requestsContainer');
             requestsContainer.innerHTML = '';
-            requests.forEach(request => {
-                const requestDiv = document.createElement('div');
-                requestDiv.classList.add('request');
-                requestDiv.innerHTML = `
-                    <h3>${request.title}</h3>
-                    <p>${request.description}</p>
-                    <div class="replies">
-                        <strong>Replies:</strong>
-                        <ul>
-                            ${request.replies.map(reply => `<li class="reply">${reply}</li>`).join('')}
-                        </ul>
-                    </div>
-                `;
-                requestsContainer.appendChild(requestDiv);
+            database.ref('requests').once('value', snapshot => {
+                snapshot.forEach(childSnapshot => {
+                    const request = childSnapshot.val();
+                    const requestDiv = document.createElement('div');
+                    requestDiv.classList.add('request');
+                    requestDiv.innerHTML = `
+                        <h3>${request.title}</h3>
+                        <p>${request.description}</p>
+                        <div class="replies">
+                            <strong>Replies:</strong>
+                            <ul>
+                                ${request.replies.map(reply => `<li class="reply">${reply}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                    requestsContainer.appendChild(requestDiv);
+                });
             });
-        }
-
-        // Function to search requests by title
-        function searchRequests() {
-            const searchInput = document.getElementById('searchInput').value.toLowerCase();
-            const requestsData = JSON.parse(localStorage.getItem('requests')) || [];
-            const filteredRequests = requestsData.filter(request =>
-                request.title.toLowerCase().includes(searchInput)
-            );
-            displayRequests(filteredRequests);
-        }
-
-        // Function to filter requests by size
-        function filterRequests() {
-            const sizeFilter = document.getElementById('sizeFilter').value;
-            const requestsData = JSON.parse(localStorage.getItem('requests')) || [];
-            let filteredRequests;
-            if (sizeFilter === 'small') {
-                filteredRequests = requestsData.filter(request => request.replies.length < 3);
-            } else if (sizeFilter === 'medium') {
-                filteredRequests = requestsData.filter(request => request.replies.length >= 3 && request.replies.length < 6);
-            } else if (sizeFilter === 'large') {
-                filteredRequests = requestsData.filter(request => request.replies.length >= 6);
-            } else {
-                filteredRequests = requestsData;
-            }
-            displayRequests(filteredRequests);
         }
 
         // Fetch and display requests when the page loads
         window.onload = function() {
-            const requestsData = JSON.parse(localStorage.getItem('requests')) || [];
-            displayRequests(requestsData);
+            displayRequests();
         };
     </script>
 </body>
