@@ -31,18 +31,29 @@
 <body>
     <h1>Movie Torrent Requests</h1>
 
-    <!-- Container to display existing requests -->
-    <div id="requestsContainer"></div>
+    <h2>Search and Filter</h2>
+    <label for="searchInput">Search:</label>
+    <input type="text" id="searchInput" oninput="searchRequests()" placeholder="Enter title">
+    <br>
+    <label for="sizeFilter">Size Filter:</label>
+    <select id="sizeFilter" onchange="filterRequests()">
+        <option value="">All Sizes</option>
+        <option value="small">Small</option>
+        <option value="medium">Medium</option>
+        <option value="large">Large</option>
+    </select>
+
+    <!-- Container to display filtered requests -->
+    <div id="filteredRequestsContainer"></div>
 
     <p><a href="index.html">Go back to Homepage</a></p>
 
     <script>
         // Function to fetch and display requests from Local Storage
-        function displayRequests() {
-            const requestsData = JSON.parse(localStorage.getItem('requests')) || [];
-            const requestsContainer = document.getElementById('requestsContainer');
+        function displayRequests(requests) {
+            const requestsContainer = document.getElementById('filteredRequestsContainer');
             requestsContainer.innerHTML = '';
-            requestsData.forEach(request => {
+            requests.forEach(request => {
                 const requestDiv = document.createElement('div');
                 requestDiv.classList.add('request');
                 requestDiv.innerHTML = `
@@ -58,7 +69,39 @@
                 requestsContainer.appendChild(requestDiv);
             });
         }
-        displayRequests();
+
+        // Function to search requests by title
+        function searchRequests() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const requestsData = JSON.parse(localStorage.getItem('requests')) || [];
+            const filteredRequests = requestsData.filter(request =>
+                request.title.toLowerCase().includes(searchInput)
+            );
+            displayRequests(filteredRequests);
+        }
+
+        // Function to filter requests by size
+        function filterRequests() {
+            const sizeFilter = document.getElementById('sizeFilter').value;
+            const requestsData = JSON.parse(localStorage.getItem('requests')) || [];
+            let filteredRequests;
+            if (sizeFilter === 'small') {
+                filteredRequests = requestsData.filter(request => request.replies.length < 3);
+            } else if (sizeFilter === 'medium') {
+                filteredRequests = requestsData.filter(request => request.replies.length >= 3 && request.replies.length < 6);
+            } else if (sizeFilter === 'large') {
+                filteredRequests = requestsData.filter(request => request.replies.length >= 6);
+            } else {
+                filteredRequests = requestsData;
+            }
+            displayRequests(filteredRequests);
+        }
+
+        // Fetch and display requests when the page loads
+        window.onload = function() {
+            const requestsData = JSON.parse(localStorage.getItem('requests')) || [];
+            displayRequests(requestsData);
+        };
     </script>
 </body>
 </html>

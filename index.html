@@ -16,7 +16,35 @@
         <textarea id="description" name="description" rows="4" cols="50" required></textarea><br>
         <button type="submit">Submit Request</button>
     </form>
+
+    <h2>Open Requests</h2>
+    <ul id="openRequests"></ul>
+
     <script>
+        // Function to display open requests
+        function displayOpenRequests() {
+            const requestsData = JSON.parse(localStorage.getItem('requests')) || [];
+            const openRequestsList = document.getElementById('openRequests');
+            openRequestsList.innerHTML = '';
+            requestsData.forEach(request => {
+                if (request.replies.length === 0) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${request.title} - ${request.description}`;
+                    listItem.addEventListener('click', () => {
+                        const reply = prompt('Enter your magnet link to reply:');
+                        if (reply) {
+                            request.replies.push(reply);
+                            localStorage.setItem('requests', JSON.stringify(requestsData));
+                            alert('Reply submitted successfully!');
+                            displayOpenRequests(); // Refresh the list after adding a reply
+                        }
+                    });
+                    openRequestsList.appendChild(listItem);
+                }
+            });
+        }
+        displayOpenRequests();
+
         // Function to submit a new request
         document.getElementById('requestForm').addEventListener('submit', (event) => {
             event.preventDefault();
@@ -32,6 +60,7 @@
             localStorage.setItem('requests', JSON.stringify(requestsData));
             alert('Request submitted successfully!');
             event.target.reset();
+            displayOpenRequests(); // Refresh the list after adding a new request
         });
     </script>
 </body>
