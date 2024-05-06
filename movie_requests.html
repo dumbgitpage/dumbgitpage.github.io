@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Torrent Requests</title>
+    <style>
+        /* Basic CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .request {
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+        .replies {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        .reply {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Movie Torrent Requests</h1>
+
+    <!-- Container to display existing requests -->
+    <div id="requestsContainer"></div>
+
+    <p><a href="index.html">Go back to Homepage</a></p>
+
+    <script>
+        // Function to fetch and display requests from Local Storage
+        function displayRequests() {
+            const requestsData = JSON.parse(localStorage.getItem('requests')) || [];
+            const requestsContainer = document.getElementById('requestsContainer');
+            requestsContainer.innerHTML = '';
+            requestsData.forEach(request => {
+                const requestDiv = document.createElement('div');
+                requestDiv.classList.add('request');
+                requestDiv.innerHTML = `
+                    <h3>${request.title}</h3>
+                    <p>${request.description}</p>
+                    <div class="replies">
+                        <strong>Replies:</strong>
+                        <ul>
+                            ${request.replies.map(reply => `<li class="reply">${reply}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                requestsContainer.appendChild(requestDiv);
+            });
+        }
+        displayRequests();
+    </script>
+</body>
+</html>

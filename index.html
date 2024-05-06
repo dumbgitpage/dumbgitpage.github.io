@@ -3,118 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Common Web</title>
-    <style>
-        /* Basic CSS styles */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-        }
-        h3 {
-          text-align: center;
-          color: #000;
-          text-shadow: #ccc;
-        }
-        form {
-            margin-bottom: 20px;
-        }
-        .request {
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-            padding: 10px;
-        }
-        .reply-form {
-            margin-top: 10px;
-        }
-    </style>
+    <title>Homepage</title>
 </head>
 <body>
-  <h3>COMMON WEBSITE</h3>
-  <br>
-    <h1>Movie Torrent Requests</h1>
-
-    <!-- Form to create a new request -->
-    <form id="requestForm">
-        <label for="title">Title:</label>
-        <input type="text" id="title" name="title" required><br>
-        <label for="description">Description:</label><br>
-        <textarea id="description" name="description" rows="4" cols="50" required></textarea><br>
-        <button type="submit">Submit Request</button>
-    </form>
-
-    <!-- Container to display existing requests -->
-    <div id="requestsContainer"></div>
-
+    <h1>Welcome to Movie Torrent Requests</h1>
+    <p><a href="movie_requests.html">View Movie Requests</a></p>
     <script>
-        // Function to fetch and display requests from Local Storage
-        function fetchRequests() {
-            const requests = JSON.parse(localStorage.getItem('requests')) || [];
-            const requestsContainer = document.getElementById('requestsContainer');
-            requestsContainer.innerHTML = '';
-            requests.forEach(request => {
-                const requestDiv = document.createElement('div');
-                requestDiv.classList.add('request');
-                requestDiv.innerHTML = `
-                    <h3>${request.title}</h3>
-                    <p>${request.description}</p>
-                    <form class="reply-form">
-                        <label for="magnetLink_${request.id}">Magnet Link:</label>
-                        <input type="text" id="magnetLink_${request.id}" name="magnetLink">
-                        <button type="button" onclick="replyToRequest('${request.id}')">Reply</button>
-                    </form>
-                `;
-                requestsContainer.appendChild(requestDiv);
-            });
+        // Function to set initial request data in Local Storage
+        function initializeRequests() {
+            const requestsData = [
+                {
+                    id: 1,
+                    title: "Inception",
+                    description: "Looking for Inception movie torrent.",
+                    replies: [
+                        "magnet:?xt=urn:btih:3d7da4324c9e296035330d7b06e9af86b3048b9d",
+                        "magnet:?xt=urn:btih:4c8e63b8e2e7b8eac95ef6ec859ab1dd05e2f0d5"
+                    ]
+                },
+                {
+                    id: 2,
+                    title: "The Dark Knight",
+                    description: "Need torrent link for The Dark Knight movie.",
+                    replies: [
+                        "magnet:?xt=urn:btih:28e005b7d73ee2da4fb0c1b58fd6bf25c7b1a0fb"
+                    ]
+                }
+            ];
+            localStorage.setItem('requests', JSON.stringify(requestsData));
         }
-
-        // Function to save requests to Local Storage
-        function saveRequest(request) {
-            const requests = JSON.parse(localStorage.getItem('requests')) || [];
-            requests.push(request);
-            localStorage.setItem('requests', JSON.stringify(requests));
-            fetchRequests();
-        }
-
-        // Function to submit a new request
-        document.getElementById('requestForm').addEventListener('submit', (event) => {
-            event.preventDefault();
-            const title = document.getElementById('title').value.trim();
-            const description = document.getElementById('description').value.trim();
-            if (!title || !description) {
-                alert('Please fill in all fields');
-                return;
-            }
-            const request = { id: Date.now(), title, description, replies: [] };
-            saveRequest(request);
-            event.target.reset();
-        });
-
-        // Function to reply to a request
-        function replyToRequest(requestId) {
-            const magnetLinkInput = document.getElementById(`magnetLink_${requestId}`);
-            const magnetLink = magnetLinkInput.value.trim();
-            if (!magnetLink) {
-                alert('Please provide a magnet link');
-                return;
-            }
-            const requests = JSON.parse(localStorage.getItem('requests')) || [];
-            const request = requests.find(req => req.id == requestId);
-            if (!request) {
-                alert('Request not found');
-                return;
-            }
-            request.replies.push(magnetLink);
-            localStorage.setItem('requests', JSON.stringify(requests));
-            fetchRequests();
-            magnetLinkInput.value = '';
-        }
-
-        // Fetch and display requests when the page loads
-        fetchRequests();
+        initializeRequests();
     </script>
 </body>
 </html>
