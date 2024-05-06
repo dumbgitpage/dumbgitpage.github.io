@@ -3,13 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Torrent Requests</title>
+    <title>Common Web</title>
     <style>
         /* Basic CSS styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
+        }
+        h3{
+            text-align: center;
+            text-decoration: solid;
+            text-shadow: #ccc;
+            font-family: 'Courier New', Courier, monospace;
         }
         h1 {
             text-align: center;
@@ -29,18 +35,22 @@
     </style>
 </head>
 <body>
-    <h1>Movie Torrent Requests</h1>
-
+    <h3>Common Website </h3>
+    <br>
+    <br>
+    <h1>Movie Torrent Magnet Requests</h1>
+<details> Search for movie Torrent magnet link. People don't post spam link. This website help people find the magnet link without accessing the dark web. This is open source website, please use it for good purpose only. </details>
     <h2>Search and Filter</h2>
     <label for="searchInput">Search:</label>
     <input type="text" id="searchInput" oninput="searchRequests()" placeholder="Enter title">
     <br>
+
     <label for="sizeFilter">Size Filter:</label>
     <select id="sizeFilter" onchange="filterRequests()">
         <option value="">All Sizes</option>
-        <option value="small">Small</option>
-        <option value="medium">Medium</option>
-        <option value="large">Large</option>
+        <option value="small">1</option>
+        <option value="medium">2</option>
+        <option value="large">3</option>
     </select>
 
     <!-- Container to display filtered requests -->
