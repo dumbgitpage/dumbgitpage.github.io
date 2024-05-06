@@ -3,36 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
+    <title>Movie Torrent Requests</title>
 </head>
 <body>
     <h1>Welcome to Movie Torrent Requests</h1>
     <p><a href="movie_requests.html">View Movie Requests</a></p>
+    <h2>Submit a Request</h2>
+    <form id="requestForm">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required><br>
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" rows="4" cols="50" required></textarea><br>
+        <button type="submit">Submit Request</button>
+    </form>
     <script>
-        // Function to set initial request data in Local Storage
-        function initializeRequests() {
-            const requestsData = [
-                {
-                    id: 1,
-                    title: "Inception",
-                    description: "Looking for Inception movie torrent.",
-                    replies: [
-                        "magnet:?xt=urn:btih:3d7da4324c9e296035330d7b06e9af86b3048b9d",
-                        "magnet:?xt=urn:btih:4c8e63b8e2e7b8eac95ef6ec859ab1dd05e2f0d5"
-                    ]
-                },
-                {
-                    id: 2,
-                    title: "The Dark Knight",
-                    description: "Need torrent link for The Dark Knight movie.",
-                    replies: [
-                        "magnet:?xt=urn:btih:28e005b7d73ee2da4fb0c1b58fd6bf25c7b1a0fb"
-                    ]
-                }
-            ];
+        // Function to submit a new request
+        document.getElementById('requestForm').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            if (!title || !description) {
+                alert('Please fill in all fields');
+                return;
+            }
+            const request = { title, description, replies: [] };
+            const requestsData = JSON.parse(localStorage.getItem('requests')) || [];
+            requestsData.push(request);
             localStorage.setItem('requests', JSON.stringify(requestsData));
-        }
-        initializeRequests();
+            alert('Request submitted successfully!');
+            event.target.reset();
+        });
     </script>
 </body>
 </html>
