@@ -3,45 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="10">
-    <link rel="stylesheet" href="styles.css">
-    <title>Common Website</title>
-    
-    
+    <title>Common Web</title>
+    <style>
+        /* Basic CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        h3 {
+          text-align: center;
+          color: #000;
+          text-shadow: #ccc;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        .request {
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+        .reply-form {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-<!--Banner for the introduction page 
-    -->
-<div class="banner">
-    <p>COMMON WEBSITE</p>
-    </div>
-<div class="menu">
-    <a href="#home">Learn</a>
-    <a href="#about">Earn</a>
-    <a href="/MemeGen/memegenerater.html">Make Memes #AdFree</a>
-</div>
-<div>
-    <table>
-        <tr>
-          <th>Topic</th>
-        </tr>
-        <tr>
-          <td>Quanitative Aptitude</td>
-        </tr>
-        <tr>
-          <td>Numerial Reasoning
+  <h3>COMMON WEBSITE</h3>
+  <br>
+    <h1>Movie Torrent Requests</h1>
 
-          </td>
-        </tr>
-      </table>
-</div>
-<br>
+    <!-- Form to create a new request -->
+    <form id="requestForm">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required><br>
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" rows="4" cols="50" required></textarea><br>
+        <button type="submit">Submit Request</button>
+    </form>
 
-<div class="menu">
-    <a href=""> Compress PDF</a>
-    <!--  <a href=""> Compress PDF</a>
-    <a href=""> Compress PDF</a>
-    <a href=""> Compress PDF</a> -->
-</div>
+    <!-- Container to display existing requests -->
+    <div id="requestsContainer"></div>
+
+    <script>
+        // Function to fetch and display requests from Local Storage
+        function fetchRequests() {
+            const requests = JSON.parse(localStorage.getItem('requests')) || [];
+            const requestsContainer = document.getElementById('requestsContainer');
+            requestsContainer.innerHTML = '';
+            requests.forEach(request => {
+                const requestDiv = document.createElement('div');
+                requestDiv.classList.add('request');
+                requestDiv.innerHTML = `
+                    <h3>${request.title}</h3>
+                    <p>${request.description}</p>
+                    <form class="reply-form">
+                        <label for="magnetLink_${request.id}">Magnet Link:</label>
+                        <input type="text" id="magnetLink_${request.id}" name="magnetLink">
+                        <button type="button" onclick="replyToRequest('${request.id}')">Reply</button>
+                    </form>
+                `;
+                requestsContainer.appendChild(requestDiv);
+            });
+        }
+
+        // Function to save requests to Local Storage
+        function saveRequest(request) {
+            const requests = JSON.parse(localStorage.getItem('requests')) || [];
+            requests.push(request);
+            localStorage.setItem('requests', JSON.stringify(requests));
+            fetchRequests();
+        }
+
+        // Function to submit a new request
+        document.getElementById('requestForm').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            if (!title || !description) {
+                alert('Please fill in all fields');
+                return;
+            }
+            const request = { id: Date.now(), title, description, replies: [] };
+            saveRequest(request);
+            event.target.reset();
+        });
+
+        // Function to reply to a request
+        function replyToRequest(requestId) {
+            const magnetLinkInput = document.getElementById(`magnetLink_${requestId}`);
+            const magnetLink = magnetLinkInput.value.trim();
+            if (!magnetLink) {
+                alert('Please provide a magnet link');
+                return;
+            }
+            const requests = JSON.parse(localStorage.getItem('requests')) || [];
+            const request = requests.find(req => req.id == requestId);
+            if (!request) {
+                alert('Request not found');
+                return;
+            }
+            request.replies.push(magnetLink);
+            localStorage.setItem('requests', JSON.stringify(requests));
+            fetchRequests();
+            magnetLinkInput.value = '';
+        }
+
+        // Fetch and display requests when the page loads
+        fetchRequests();
+    </script>
 </body>
 </html>
