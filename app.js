@@ -13,47 +13,57 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // Function to submit a request for a movie magnet
-const submitRequest = async (e) => {
-  e.preventDefault();
-  const movieName = document.getElementById('movieName').value;
-  try {
-    const docRef = await addDoc(collection(db, "requests"), {
-      movieName: movieName,
-      timestamp: new Date()
-    });
-    console.log("Request submitted with ID: ", docRef.id);
-    document.getElementById('movieName').value = '';
-  } catch (error) {
-    console.error("Error adding document: ", error);
-  }
-};
-
-// Function to fetch and display open requests
-const displayOpenRequests = async () => {
-  const openRequestsDiv = document.getElementById('openRequests');
-  openRequestsDiv.innerHTML = ''; // Clear previous content
-  const requestsSnapshot = await getDocs(collection(db, "requests"));
-  requestsSnapshot.forEach((doc) => {
-    const data = doc.data();
-    openRequestsDiv.innerHTML += `<div>${data.movieName}</div>`;
-  });
-};
-
-// Function to handle submitting links
+// Function to submit a link
 const submitLink = async (e) => {
-  e.preventDefault();
-  const link = e.target.parentElement.querySelector('.linkInput').value;
-  // Submit the link to Firebase
-};
-
-// Function to display submitted links
-const displaySubmittedLinks = async () => {
-  // Fetch submitted links from Firebase
-};
-
-// Event listener for submitting a request
-document.getElementById('requestForm').addEventListener('submit', submitRequest);
-
-// Initial setup
-displayOpenRequests();
-displaySubmittedLinks();
+    e.preventDefault();
+    const link = e.target.parentElement.querySelector('.linkInput').value;
+    try {
+      const docRef = await addDoc(collection(db, "submittedLinks"), {
+        link: link,
+        votes: 0,
+        timestamp: new Date()
+      });
+      console.log("Link submitted with ID: ", docRef.id);
+      e.target.parentElement.querySelector('.linkInput').value = '';
+      // Refresh the displayed links
+      displaySubmittedLinks();
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
+  
+  // Function to display submitted links
+  const displaySubmittedLinks = async () => {
+    const submittedLinksDiv = document.getElementById('submittedLinks');
+    submittedLinksDiv.innerHTML = ''; // Clear previous content
+    const linksSnapshot = await getDocs(collection(db, "submittedLinks"));
+    linksSnapshot.forEach((doc) => {
+      const data = doc.data();
+      submittedLinksDiv.innerHTML += `
+        <div>
+          <p>${data.link}</p>
+          <button onclick="vote('${doc.id}')">Vote</button>
+          <span>Votes: ${data.votes}</span>
+        </div>
+      `;
+    });
+  };
+  
+  // Function to vote for a link
+  const vote = async (linkId) => {
+    const linkRef = doc(db, "submittedLinks", linkId);
+    try {
+      await updateDoc(linkRef, {
+        votes: increment(1)
+      });
+      console.log("Vote added for link: ", linkId);
+      // Refresh the displayed links
+      displaySubmittedLinks();
+    } catch (error) {
+      console.error("Error updating document: ", error);
+    }
+  };
+  
+  // Event listener for submitting a link
+  document.getElementById('submitLinkForm').addEventListener('submit', submitLink);
+  

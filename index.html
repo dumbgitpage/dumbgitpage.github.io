@@ -7,12 +7,16 @@
 </head>
 <body>
     <script type="module" src="app.js"></script>
-  <h1 style="color: blue;">Common Website</h1>
-  <form id="requestForm">
-    <label for="movieName">Request a Movie Magnet:</label><br>
-    <input type="text" id="movieName" name="movieName" required><br>
+  <<h1 style="color: blue;">Submitted Links</h1>
+  <form id="submitLinkForm">
+    <label for="linkInput">Submit a Link:</label><br>
+    <input type="text" id="linkInput" class="linkInput" required><br>
     <button type="submit">Submit</button>
   </form>
+  <div id="submittedLinks">
+    <!-- Submitted links will be dynamically added here -->
+  </div>
+  
   <h2>Open Requests</h2>
   <div id="openRequests">
     <!-- Open requests will be dynamically added here -->
