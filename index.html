@@ -1,68 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Torrent Requests</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Common Website</title>
 </head>
 <body>
-    <h1>Welcome to Movie Torrent Requests</h1>
-    <h2>Submit a Request</h2>
-    <form id="requestForm">
-        <label for="title">Title:</label>
-        <input type="text" id="title" name="title" required><br>
-        <label for="description">Description:</label><br>
-        <textarea id="description" name="description" rows="4" cols="50" required></textarea><br>
-        <button type="button" onclick="submitRequest()">Submit Request</button>
-    </form>
+  <h1 style="color: blue;">Common Website</h1>
+  <form id="requestForm">
+    <label for="movieName">Request a Movie Magnet:</label><br>
+    <input type="text" id="movieName" name="movieName" required><br>
+    <button type="submit">Submit</button>
+  </form>
+  <h2>Open Requests</h2>
+  <div id="openRequests">
+    <!-- Open requests will be dynamically added here -->
+  </div>
 
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-      
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyDRDPueFbHs8rrZDuq3kCjSevukjRZztro",
-          authDomain: "commonwebsite-5e316.firebaseapp.com",
-          projectId: "commonwebsite-5e316",
-          storageBucket: "commonwebsite-5e316.appspot.com",
-          messagingSenderId: "138538311145",
-          appId: "1:138538311145:web:34d891df8ed4ce16dbbf78"
-        };
-      
-        // Initialize Firebase
-        //const app = initializeApp(firebaseConfig);<script>
-        
-        // Initialize Firebase (same as before)
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        // Function to submit a new request
-        function submitRequest() {
-            const title = document.getElementById('title').value.trim();
-            const description = document.getElementById('description').value.trim();
-            if (!title || !description) {
-                alert('Please fill in all fields');
-                return;
-            }
-            const requestRef = database.ref('requests').push();
-            requestRef.set({
-                title: title,
-                description: description,
-                replies: []
-            }).then(() => {
-                alert('Request submitted successfully!'); // Pop-up message for success
-                document.getElementById('requestForm').reset();
-            }).catch(error => {
-                console.error('Error submitting request:', error);
-                alert('An error occurred while submitting the request');
-            });
-        }
-    </script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

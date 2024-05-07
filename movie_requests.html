@@ -1,84 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Torrent Requests</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js"></script>
-    <style>
-        /* Basic CSS styles */
-        .request {
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-            padding: 10px;
-        }
-        .replies {
-            margin-top: 10px;
-            padding-left: 20px;
-        }
-        .reply {
-            margin-bottom: 5px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submitted Links</title>
 </head>
 <body>
-    <h1>Movie Torrent Requests</h1>
+  <h1 style="color: blue;">Submitted Links</h1>
+  <div id="submittedLinks">
+    <!-- Submitted links will be dynamically added here -->
+  </div>
 
-    <!-- Container to display existing requests -->
-    <div id="requestsContainer"></div>
-
-
-    
-    <!-- JavaScript -->
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-      
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyDRDPueFbHs8rrZDuq3kCjSevukjRZztro",
-          authDomain: "commonwebsite-5e316.firebaseapp.com",
-          projectId: "commonwebsite-5e316",
-          storageBucket: "commonwebsite-5e316.appspot.com",
-          messagingSenderId: "138538311145",
-          appId: "1:138538311145:web:34d891df8ed4ce16dbbf78"
-        };
-      
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-
-        // Function to display requests
-        function displayRequests() {
-            const requestsContainer = document.getElementById('requestsContainer');
-            requestsContainer.innerHTML = '';
-            database.ref('requests').once('value', snapshot => {
-                snapshot.forEach(childSnapshot => {
-                    const request = childSnapshot.val();
-                    const requestDiv = document.createElement('div');
-                    requestDiv.classList.add('request');
-                    requestDiv.innerHTML = `
-                        <h3>${request.title}</h3>
-                        <p>${request.description}</p>
-                        <div class="replies">
-                            <strong>Replies:</strong>
-                            <ul>
-                                ${request.replies.map(reply => `<li class="reply">${reply}</li>`).join('')}
-                            </ul>
-                        </div>
-                    `;
-                    requestsContainer.appendChild(requestDiv);
-                });
-            });
-        }
-
-        // Fetch and display requests when the page loads
-        window.onload = function() {
-            displayRequests();
-        };
-    </script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
