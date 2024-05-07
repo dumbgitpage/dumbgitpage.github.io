@@ -1,27 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Common Website</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Common Website</title>
+    <style>
+        /* Classic look with allowed colors */
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+       .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+       .form-group {
+            margin-bottom: 20px;
+        }
+       .form-control {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+        }
+       .btn {
+            background-color: #337ab7;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+       .btn:hover {
+            background-color: #23527c;
+        }
+       .open-requests {
+            margin-top: 40px;
+        }
+       .request {
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+       .request:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body>
-    <script type="module" src="app.js"></script>
-  <h1 style="color: blue;">Submitted Links</h1>
-  <form id="submitLinkForm">
-    <label for="linkInput">Submit a Link:</label><br>
-    <input type="text" id="linkInput" class="linkInput" required><br>
-    <button type="submit">Submit</button>
-  </form>
-  <div id="submittedLinks">
-    <!-- Submitted links will be dynamically added here -->
-  </div>
-  
-  <h2>Open Requests</h2>
-  <div id="openRequests">
-    <!-- Open requests will be dynamically added here -->
-  </div>
+    <div class="container">
+        <h1>Common Website</h1>
+        <form id="request-form">
+            <div class="form-group">
+                <label for="movie-title">Movie Title:</label>
+                <input type="text" id="movie-title" class="form-control">
+            </div>
+            <button class="btn">Submit Request</button>
+        </form>
+        <div class="open-requests">
+            <h2>Open Requests:</h2>
+            <ul id="open-requests-list">
+                <!-- Open requests will be listed here -->
+            </ul>
+        </div>
+    </div>
 
-  
+    <script type="module">
+        // Import Firebase SDK
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+         
+        const firebaseConfig = {
+                 apiKey: "AIzaSyDRDPueFbHs8rrZDuq3kCjSevukjRZztro",
+                 authDomain: "commonwebsite-5e316.firebaseapp.com",
+                    projectId: "commonwebsite-5e316",
+                storageBucket: "commonwebsite-5e316.appspot.com",
+                messagingSenderId: "138538311145",
+                appId: "1:138538311145:web:34d891df8ed4ce16dbbf78"
+                };
+        // Initialize Firebase Firestore
+        const db = getFirestore();
+
+        // Get open requests collection
+        const openRequestsCollection = collection(db, 'open-requests');
+
+        // Submit request form
+        const requestForm = document.getElementById('request-form');
+        requestForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const movieTitle = document.getElementById('movie-title').value;
+            addDoc(openRequestsCollection, { title: movieTitle, links: [] });
+            requestForm.reset();
+        });
+
+        // Load open requests
+        openRequestsCollection.onSnapshot((snapshot) => {
+            const openRequestsList = document.getElementById('open-requests-list');
+            openRequestsList.innerHTML = '';
+            snapshot.docs.forEach((doc) => {
+                const request = document.createElement('li');
+                request.className = 'equest';
+                request.textContent = doc.data().title;
+                openRequestsList.appendChild(request);
+            });
+        });
+    </script>
 </body>
 </html>
