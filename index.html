@@ -189,12 +189,13 @@ database.ref('requests').once('value', function(snapshot) {
         var requestKey = childSnapshot.key;
 
         if (requestData.reply) {
-            var replyLink = document.createElement('div');
-            replyLink.innerHTML = '<strong>Reply:</strong> <a href="' + requestData.reply + '">' + requestData.reply + '</a>';
-            document.getElementById('submitted-links').appendChild(replyLink);
+            var linkItem = document.createElement('div');
+            linkItem.innerHTML = '<strong>Title:</strong> ' + requestData.title + '<br><strong>Description:</strong> ' + requestData.description + '<br><strong>Link:</strong> <a href="' + requestData.reply + '">' + requestData.reply + '</a>';
+            document.getElementById('submitted-links').appendChild(linkItem);
         }
     });
 });
+
 
 
 
