@@ -131,7 +131,7 @@
             }
         }
 
-        // Listen for changes in the requests node
+// Listen for changes in the requests node
 database.ref('requests').on('child_added', function(snapshot) {
     var requestData = snapshot.val();
     var requestKey = snapshot.key;
@@ -162,14 +162,23 @@ database.ref('requests').on('child_added', function(snapshot) {
             var link = linkInput.value.trim();
 
             if (link !== '') {
-                // Update Firebase with the submitted link
+                // Update Firebase with the submitted link and remove the open request
                 var updates = {};
                 updates['/requests/' + requestKey + '/reply'] = link;
                 firebase.database().ref().update(updates)
                     .then(function() {
-                        alert('Reply submitted successfully!');
+                        // Store the submitted link in the "Submitted Links" division
+                        var replyLink = document.createElement('div');
+                        replyLink.innerHTML = '<strong>Reply:</strong> <a href="' + link + '">' + link + '</a>';
+                        document.getElementById('submitted-links').appendChild(replyLink);
+
+                        // Remove the open request from the database
+                        database.ref('requests/' + requestKey).remove();
+
                         // Clear input field after submission
                         linkInput.value = '';
+
+                        alert('Reply submitted successfully!');
                     })
                     .catch(function(error) {
                         console.error('Error submitting reply:', error);
@@ -183,6 +192,7 @@ database.ref('requests').on('child_added', function(snapshot) {
         document.getElementById('open-requests').appendChild(requestItem);
     }
 });
+
 
 
     </script>
