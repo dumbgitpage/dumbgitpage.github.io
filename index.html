@@ -139,6 +139,13 @@ database.ref('requests').on('child_added', function(snapshot) {
     var requestItem = document.createElement('div');
     requestItem.classList.add('request-item');
     requestItem.innerHTML = '<strong>Title:</strong> ' + requestData.title + '<br><strong>Description:</strong> ' + requestData.description;
+
+    // Check if a reply exists and display it if available
+    if (requestData.reply) {
+        var replyLink = document.createElement('div');
+        replyLink.innerHTML = '<strong>Reply:</strong> <a href="' + requestData.reply + '">' + requestData.reply + '</a>';
+        requestItem.appendChild(replyLink);
+    }
     
     // Add a form to reply to the request
     var replyForm = document.createElement('form');
@@ -174,6 +181,7 @@ database.ref('requests').on('child_added', function(snapshot) {
 
     document.getElementById('open-requests').appendChild(requestItem);
 });
+
 
     </script>
 </body>
