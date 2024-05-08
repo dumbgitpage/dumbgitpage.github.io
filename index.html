@@ -170,56 +170,10 @@
                         linkItem.classList.add('link-item');
                         linkItem.innerHTML = '<strong>Title:</strong> ' + requestData.title + '<br><strong>Description:</strong> ' + requestData.description + '<br><strong>Link:</strong> <a href="' + requestData.reply + '">' + requestData.reply + '</a>';
 
-                        var likeDislikeDiv = document.createElement('div');
-                        likeDislikeDiv.classList.add('like-dislike');
-
-                        var likeButton = document.createElement('button');
-                        likeButton.classList.add('like-btn');
-                        likeButton.innerHTML = 'Like (' + (requestData.likes || 0) + ')';
-                        likeButton.onclick = function() {
-                            // Check if user has already liked from this IP
-                            if (!hasLikedFromIP(childSnapshot.key)) {
-                                updateVote(childSnapshot.key, 'likes');
-                                addIPToLiked(childSnapshot.key);
-                            } else {
-                                alert('You have already liked this.');
-                            }
-                        };
-                        likeDislikeDiv.appendChild(likeButton);
-
-                        var dislikeButton = document.createElement('button');
-                        dislikeButton.classList.add('dislike-btn');
-                        dislikeButton.innerHTML = 'Dislike (' + (requestData.dislikes || 0) + ')';
-                        dislikeButton.onclick = function() {
-                            updateVote(childSnapshot.key, 'dislikes');
-                        };
-                        likeDislikeDiv.appendChild(dislikeButton);
-
-                        linkItem.appendChild(likeDislikeDiv);
-
                         document.getElementById('submitted-links').appendChild(linkItem);
                     }
                 });
             });
-        }
-
-        // Function to update vote counts in Firebase
-        function updateVote(requestKey, type) {
-            var voteRef = firebase.database().ref('requests/' + requestKey + '/' + type);
-            voteRef.transaction(function(currentVote) {
-                return currentVote + 1;
-            });
-        }
-
-        // Function to check if user has already liked from this IP
-        function hasLikedFromIP(requestKey) {
-            var likedFromIP = localStorage.getItem(requestKey); // Check local storage for liked key
-            return likedFromIP ? true : false;
-        }
-
-        // Function to add IP to liked list
-        function addIPToLiked(requestKey) {
-            localStorage.setItem(requestKey, 'liked'); // Add request key to local storage as liked
         }
 
         // Function to handle form submission for requesting links
