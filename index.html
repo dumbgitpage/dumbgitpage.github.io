@@ -74,6 +74,15 @@
 <body>
     <div class="title-bar">Common Website</div>
     <div class="container">
+        <h2>Request Movie Torrent Link</h2>
+        <form id="request-form">
+            <label for="title">Title:</label><br>
+            <input type="text" id="title" name="title" required><br>
+            <label for="description">Description (50 words limit):</label><br>
+            <textarea id="description" name="description" rows="3" maxlength="50" required></textarea><br>
+            <button type="submit" class="btn">Submit Request</button>
+        </form>
+        <hr>
         <h2>Open Requests</h2>
         <div id="open-requests"></div>
 
@@ -164,7 +173,7 @@
 
                         var likeButton = document.createElement('button');
                         likeButton.classList.add('like-btn');
-                        likeButton.innerHTML = 'Like';
+                        likeButton.innerHTML = 'Like (' + (requestData.likes || 0) + ')';
                         likeButton.onclick = function() {
                             updateVote(childSnapshot.key, 'likes');
                         };
@@ -172,7 +181,7 @@
 
                         var dislikeButton = document.createElement('button');
                         dislikeButton.classList.add('dislike-btn');
-                        dislikeButton.innerHTML = 'Dislike';
+                        dislikeButton.innerHTML = 'Dislike (' + (requestData.dislikes || 0) + ')';
                         dislikeButton.onclick = function() {
                             updateVote(childSnapshot.key, 'dislikes');
                         };
@@ -193,6 +202,34 @@
                 return currentVote + 1;
             });
         }
+
+        // Function to handle form submission for requesting links
+        document.getElementById('request-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var title = document.getElementById('title').value.trim();
+            var description = document.getElementById('description').value.trim();
+
+            if (title !== '' && description !== '') {
+                // Save the request to Firebase
+                var newRequestRef = database.ref('requests').push();
+                newRequestRef.set({
+                    title: title,
+                    description: description
+                })
+                .then(function() {
+                    alert('Request submitted successfully!');
+                    // Clear form fields after submission
+                    document.getElementById('title').value = '';
+                    document.getElementById('description').value = '';
+                })
+                .catch(function(error) {
+                    console.error('Error submitting request:', error);
+                });
+            } else {
+                alert('Please fill in all fields.');
+            }
+        });
 
         // Call the function to display open requests and submitted links
         displayOpenRequestsAndLinks();
