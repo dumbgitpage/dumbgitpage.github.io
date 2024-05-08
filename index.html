@@ -141,6 +141,8 @@
                         updates['/requests/' + requestKey + '/reply'] = link;
                         firebase.database().ref().update(updates)
                             .then(function() {
+                                // Remove the open request
+                                database.ref('requests/' + requestKey).remove();
                                 // Clear input field after submission
                                 linkInput.value = '';
 
