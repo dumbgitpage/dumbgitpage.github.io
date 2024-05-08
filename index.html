@@ -10,7 +10,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #fefefe; /* Light yellow background */
+            background-color: #f0f0f0; /* Light gray background */
             color: #333; /* Blackish text color */
         }
         .title-bar {
@@ -34,20 +34,6 @@
             background-color: #f9f9f9; /* Light gray request item background */
             border-radius: 5px;
         }
-        .reply-form {
-            margin-top: 10px;
-        }
-        .btn {
-            background-color: #007bff; /* Blue button */
-            color: #fff; /* White text color */
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .btn:hover {
-            background-color: #0056b3; /* Darker blue on hover */
-        }
         .link-item {
             padding: 10px;
             background-color: #f0f0f0; /* Light gray link item background */
@@ -61,13 +47,13 @@
             margin-right: 10px;
             cursor: pointer;
             color: #fff; /* White text color for buttons */
-            background-color: #d9534f; /* Red button */
+            background-color: #007bff; /* Blue button */
             border: none;
             padding: 5px 10px;
             border-radius: 3px;
         }
         .like-btn:hover, .dislike-btn:hover {
-            background-color: #c9302c; /* Darker red on hover */
+            background-color: #0056b3; /* Darker blue on hover */
         }
     </style>
 </head>
@@ -80,7 +66,7 @@
             <input type="text" id="title" name="title" required><br>
             <label for="description">Description (50 words limit):</label><br>
             <textarea id="description" name="description" rows="3" maxlength="50" required></textarea><br>
-            <button type="submit" class="btn">Submit Request</button>
+            <button type="submit">Submit Request</button>
         </form>
         <hr>
         <h2>Open Requests</h2>
@@ -112,40 +98,38 @@
 
         var database = firebase.database();
 
-        // Function to display open requests and submitted links
-        function displayOpenRequestsAndLinks() {
-            // Display open requests
+        // Function to display open requests
+        function displayOpenRequests() {
             database.ref('requests').on('child_added', function(snapshot) {
                 var requestData = snapshot.val();
                 var requestKey = snapshot.key;
 
                 var requestItem = document.createElement('div');
                 requestItem.classList.add('request-item');
-                requestItem.innerHTML = '<strong>Title:</strong> ' + requestData.title + '<br><strong>Description:</strong> ' + requestData.description;
+                requestItem.innerHTML = '<strong>Title:</strong> ' + requestData.title + '<br><strong>Description:</strong> ' + requestData.description +
+                                        '<form class="reply-form" id="reply-form-' + requestKey + '">' +
+                                        '<input type="text" id="link-' + requestKey + '" placeholder="Enter link">' +
+                                        '<button type="submit" data-request-key="' + requestKey + '">Submit Link</button>' +
+                                        '</form>';
 
-                var replyForm = document.createElement('form');
-                replyForm.classList.add('reply-form');
-                replyForm.innerHTML = '<input type="text" id="reply-link-' + requestKey + '" placeholder="Enter link">' +
-                                      '<button type="button" class="btn reply-btn" data-request-key="' + requestKey + '">Submit Link</button>';
-                
                 // Handle reply submission
-                var replyButton = replyForm.querySelector('.reply-btn');
-                replyButton.addEventListener('click', function() {
-                    var requestKey = this.getAttribute('data-request-key');
-                    var linkInput = document.getElementById('reply-link-' + requestKey);
-                    var link = linkInput.value.trim();
+                requestItem.querySelector('#reply-form-' + requestKey).addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    var link = document.getElementById('link-' + requestKey).value.trim();
 
                     if (link !== '') {
                         // Update Firebase with the submitted link and remove the open request
                         var updates = {};
-                        updates['/requests/' + requestKey + '/reply'] = link;
+                        updates['/submitted_links/' + requestKey] = {
+                            title: requestData.title,
+                            description: requestData.description,
+                            link: link,
+                            likes: 0,
+                            dislikes: 0
+                        };
+                        updates['/requests/' + requestKey] = null; // Remove the open request
                         firebase.database().ref().update(updates)
                             .then(function() {
-                                // Remove the open request
-                                database.ref('requests/' + requestKey).remove();
-                                // Clear input field after submission
-                                linkInput.value = '';
-
                                 alert('Reply submitted successfully!');
                             })
                             .catch(function(error) {
@@ -156,11 +140,12 @@
                     }
                 });
 
-                requestItem.appendChild(replyForm);
                 document.getElementById('open-requests').appendChild(requestItem);
             });
+        }
 
-            // Display submitted links
+        // Function to display submitted links
+        function displaySubmittedLinks() {
             database.ref('submitted_links').on('child_added', function(snapshot) {
                 var linkData = snapshot.val();
 
@@ -168,8 +153,8 @@
                 linkItem.classList.add('link-item');
                 linkItem.innerHTML = '<strong>Title:</strong> ' + linkData.title + '<br><strong>Description:</strong> ' + linkData.description + '<br><strong>Link:</strong> <a href="' + linkData.link + '">' + linkData.link + '</a>' +
                                      '<div class="like-dislike">' +
-                                     '<button class="like-btn" onclick="likeLink(\'' + snapshot.key + '\')">Like (' + (linkData.likes || 0) + ')</button>' +
-                                     '<button class="dislike-btn" onclick="dislikeLink(\'' + snapshot.key + '\')">Dislike (' + (linkData.dislikes || 0) + ')</button>' +
+                                     '<button class="like-btn" onclick="likeLink(\'' + snapshot.key + '\')">Like (' + linkData.likes + ')</button>' +
+                                     '<button class="dislike-btn" onclick="dislikeLink(\'' + snapshot.key + '\')">Dislike (' + linkData.dislikes + ')</button>' +
                                      '</div>';
 
                 document.getElementById('submitted-links').appendChild(linkItem);
@@ -206,32 +191,23 @@
 
         // Function to handle like action on a link
         function likeLink(linkKey) {
-            var linkRef = database.ref('submitted_links/' + linkKey);
-            linkRef.transaction(function(linkData) {
-                if (!linkData.likes) {
-                    linkData.likes = 1;
-                } else {
-                    linkData.likes++;
-                }
-                return linkData;
+            var linkRef = database.ref('submitted_links/' + linkKey + '/likes');
+            linkRef.transaction(function(likes) {
+                return (likes || 0) + 1;
             });
         }
 
         // Function to handle dislike action on a link
         function dislikeLink(linkKey) {
-            var linkRef = database.ref('submitted_links/' + linkKey);
-            linkRef.transaction(function(linkData) {
-                if (!linkData.dislikes) {
-                    linkData.dislikes = 1;
-                } else {
-                    linkData.dislikes++;
-                }
-                return linkData;
+            var linkRef = database.ref('submitted_links/' + linkKey + '/dislikes');
+            linkRef.transaction(function(dislikes) {
+                return (dislikes || 0) + 1;
             });
         }
 
-        // Call the function to display open requests and submitted links
-        displayOpenRequestsAndLinks();
+        // Call the functions to display open requests and submitted links
+        displayOpenRequests();
+        displaySubmittedLinks();
     </script>
 </body>
 </html>
