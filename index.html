@@ -161,18 +161,18 @@
             });
 
             // Display submitted links
-            database.ref('requests').once('value', function(snapshot) {
-                snapshot.forEach(function(childSnapshot) {
-                    var requestData = childSnapshot.val();
+            database.ref('submitted_links').on('child_added', function(snapshot) {
+                var linkData = snapshot.val();
 
-                    if (requestData.reply) {
-                        var linkItem = document.createElement('div');
-                        linkItem.classList.add('link-item');
-                        linkItem.innerHTML = '<strong>Title:</strong> ' + requestData.title + '<br><strong>Description:</strong> ' + requestData.description + '<br><strong>Link:</strong> <a href="' + requestData.reply + '">' + requestData.reply + '</a>';
+                var linkItem = document.createElement('div');
+                linkItem.classList.add('link-item');
+                linkItem.innerHTML = '<strong>Title:</strong> ' + linkData.title + '<br><strong>Description:</strong> ' + linkData.description + '<br><strong>Link:</strong> <a href="' + linkData.link + '">' + linkData.link + '</a>' +
+                                     '<div class="like-dislike">' +
+                                     '<button class="like-btn" onclick="likeLink(\'' + snapshot.key + '\')">Like (' + (linkData.likes || 0) + ')</button>' +
+                                     '<button class="dislike-btn" onclick="dislikeLink(\'' + snapshot.key + '\')">Dislike (' + (linkData.dislikes || 0) + ')</button>' +
+                                     '</div>';
 
-                        document.getElementById('submitted-links').appendChild(linkItem);
-                    }
-                });
+                document.getElementById('submitted-links').appendChild(linkItem);
             });
         }
 
@@ -203,6 +203,32 @@
                 alert('Please fill in all fields.');
             }
         });
+
+        // Function to handle like action on a link
+        function likeLink(linkKey) {
+            var linkRef = database.ref('submitted_links/' + linkKey);
+            linkRef.transaction(function(linkData) {
+                if (!linkData.likes) {
+                    linkData.likes = 1;
+                } else {
+                    linkData.likes++;
+                }
+                return linkData;
+            });
+        }
+
+        // Function to handle dislike action on a link
+        function dislikeLink(linkKey) {
+            var linkRef = database.ref('submitted_links/' + linkKey);
+            linkRef.transaction(function(linkData) {
+                if (!linkData.dislikes) {
+                    linkData.dislikes = 1;
+                } else {
+                    linkData.dislikes++;
+                }
+                return linkData;
+            });
+        }
 
         // Call the function to display open requests and submitted links
         displayOpenRequestsAndLinks();
