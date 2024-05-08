@@ -132,27 +132,49 @@
         }
 
         // Listen for changes in the requests node
-        database.ref('requests').on('child_added', function(snapshot) {
-            var requestData = snapshot.val();
-            var requestKey = snapshot.key;
+database.ref('requests').on('child_added', function(snapshot) {
+    var requestData = snapshot.val();
+    var requestKey = snapshot.key;
 
-            var requestItem = document.createElement('div');
-            requestItem.classList.add('request-item');
-            requestItem.innerHTML = '<strong>Title:</strong> ' + requestData.title + '<br><strong>Description:</strong> ' + requestData.description;
-            
-            // Add a button to reply to the request
-            var replyButton = document.createElement('button');
-            replyButton.textContent = 'Reply';
-            replyButton.classList.add('btn');
-            replyButton.onclick = function() {
-                // Handle reply functionality
-                // You can add your code here to handle replying to requests
-                alert('You clicked reply for request with key: ' + requestKey);
-            };
-            requestItem.appendChild(replyButton);
+    var requestItem = document.createElement('div');
+    requestItem.classList.add('request-item');
+    requestItem.innerHTML = '<strong>Title:</strong> ' + requestData.title + '<br><strong>Description:</strong> ' + requestData.description;
+    
+    // Add a form to reply to the request
+    var replyForm = document.createElement('form');
+    replyForm.classList.add('reply-form');
+    replyForm.innerHTML = '<input type="text" id="reply-link-' + requestKey + '" placeholder="Enter link">' +
+                          '<button type="button" class="btn reply-btn" data-request-key="' + requestKey + '">Submit Link</button>';
+    
+    // Handle reply submission
+    var replyButton = replyForm.querySelector('.reply-btn');
+    replyButton.addEventListener('click', function() {
+        var linkInput = document.getElementById('reply-link-' + requestKey);
+        var link = linkInput.value.trim();
 
-            document.getElementById('open-requests').appendChild(requestItem);
-        });
+        if (link !== '') {
+            // Update Firebase with the submitted link
+            var updates = {};
+            updates['/requests/' + requestKey + '/reply'] = link;
+            firebase.database().ref().update(updates)
+                .then(function() {
+                    alert('Reply submitted successfully!');
+                    // Clear input field after submission
+                    linkInput.value = '';
+                })
+                .catch(function(error) {
+                    console.error('Error submitting reply:', error);
+                });
+        } else {
+            alert('Please enter a link.');
+        }
+    });
+
+    requestItem.appendChild(replyForm);
+
+    document.getElementById('open-requests').appendChild(requestItem);
+});
+
     </script>
 </body>
 </html>
