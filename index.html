@@ -98,7 +98,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.3.3/firebase-database.js"></script>
 
     <script>
-        // JavaScript code for Firebase integration and dynamic content display
         // Initialize Firebase
         var firebaseConfig = {
             apiKey: "AIzaSyDRDPueFbHs8rrZDuq3kCjSevukjRZztro",
@@ -132,6 +131,7 @@
                 // Handle reply submission
                 var replyButton = replyForm.querySelector('.reply-btn');
                 replyButton.addEventListener('click', function() {
+                    var requestKey = this.getAttribute('data-request-key');
                     var linkInput = document.getElementById('reply-link-' + requestKey);
                     var link = linkInput.value.trim();
 
@@ -175,7 +175,13 @@
                         likeButton.classList.add('like-btn');
                         likeButton.innerHTML = 'Like (' + (requestData.likes || 0) + ')';
                         likeButton.onclick = function() {
-                            updateVote(childSnapshot.key, 'likes');
+                            // Check if user has already liked from this IP
+                            if (!hasLikedFromIP(childSnapshot.key)) {
+                                updateVote(childSnapshot.key, 'likes');
+                                addIPToLiked(childSnapshot.key);
+                            } else {
+                                alert('You have already liked this.');
+                            }
                         };
                         likeDislikeDiv.appendChild(likeButton);
 
@@ -201,6 +207,17 @@
             voteRef.transaction(function(currentVote) {
                 return currentVote + 1;
             });
+        }
+
+        // Function to check if user has already liked from this IP
+        function hasLikedFromIP(requestKey) {
+            var likedFromIP = localStorage.getItem(requestKey); // Check local storage for liked key
+            return likedFromIP ? true : false;
+        }
+
+        // Function to add IP to liked list
+        function addIPToLiked(requestKey) {
+            localStorage.setItem(requestKey, 'liked'); // Add request key to local storage as liked
         }
 
         // Function to handle form submission for requesting links
