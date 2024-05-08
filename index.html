@@ -1,111 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- index.html -->
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Common Website</title>
+    <title>Magnet Link Sharing Platform</title>
     <style>
-        /* Classic look with allowed colors */
-        body {
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
-        }
-       .container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-       .form-group {
-            margin-bottom: 20px;
-        }
-       .form-control {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-        }
-       .btn {
-            background-color: #337ab7;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-       .btn:hover {
-            background-color: #23527c;
-        }
-       .open-requests {
-            margin-top: 40px;
-        }
-       .request {
-            padding: 20px;
-            border-bottom: 1px solid #ddd;
-        }
-       .request:last-child {
-            border-bottom: none;
-        }
+      body {
+        font-family: Arial, sans-serif;
+      }
+  
+     .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+  
+     .form-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+  
+     .form-container input[type="text"] {
+        width: 300px;
+        height: 40px;
+        margin-bottom: 10px;
+      }
+  
+     .form-container button {
+        width: 300px;
+        height: 40px;
+        cursor: pointer;
+      }
+  
+     .link-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+  
+     .link-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 300px;
+        height: 200px;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+      }
+  
+     .link-card a {
+        text-decoration: none;
+        color: #0066cc;
+      }
+  
+     .link-card.likes {
+        margin-top: 10px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  
+  <body>
     <div class="container">
-        <h1>Common Website</h1>
-        <form id="request-form">
-            <div class="form-group">
-                <label for="movie-title">Movie Title:</label>
-                <input type="text" id="movie-title" class="form-control">
-            </div>
-            <button class="btn">Submit Request</button>
+      <div class="form-container">
+        <form id="upload-form">
+          <input type="text" id="magnet-link" placeholder="Enter magnet link" required />
+          <button type="submit">Upload</button>
         </form>
-        <div class="open-requests">
-            <h2>Open Requests:</h2>
-            <ul id="open-requests-list">
-                <!-- Open requests will be listed here -->
-            </ul>
-        </div>
+      </div>
+      <div class="link-container">
+        <div id="links"></div>
+      </div>
+      <div class="filter-container">
+        <label>Filter by:</label>
+        <select id="filter">
+          <option value="popularity">Popularity</option>
+          <option value="recent">Recent</option>
+        </select>
+      </div>
     </div>
-
-    <script type="module">
-        // Import Firebase SDK
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
-         
-        const firebaseConfig = {
-                 apiKey: "AIzaSyDRDPueFbHs8rrZDuq3kCjSevukjRZztro",
-                 authDomain: "commonwebsite-5e316.firebaseapp.com",
-                    projectId: "commonwebsite-5e316",
-                storageBucket: "commonwebsite-5e316.appspot.com",
-                messagingSenderId: "138538311145",
-                appId: "1:138538311145:web:34d891df8ed4ce16dbbf78"
-                };
-        // Initialize Firebase Firestore
-        const db = getFirestore();
-
-        // Get open requests collection
-        const openRequestsCollection = collection(db, 'open-requests');
-
-        // Submit request form
-        const requestForm = document.getElementById('request-form');
-        requestForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const movieTitle = document.getElementById('movie-title').value;
-            addDoc(openRequestsCollection, { title: movieTitle, links: [] });
-            requestForm.reset();
+  
+    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-database.js"></script>
+    <script>
+      // Initialize Firebase
+      const firebaseConfig = {
+  apiKey: "AIzaSyDRDPueFbHs8rrZDuq3kCjSevukjRZztro",
+  authDomain: "commonwebsite-5e316.firebaseapp.com",
+  databaseURL: "https://commonwebsite-5e316-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "commonwebsite-5e316",
+  storageBucket: "commonwebsite-5e316.appspot.com",
+  messagingSenderId: "138538311145",
+  appId: "1:138538311145:web:34d891df8ed4ce16dbbf78"
+};
+  
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+  
+      // Upload magnet link
+      document.getElementById("upload-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const magnetLink = document.getElementById("magnet-link").value;
+        db.ref("magnet-links").push({ magnetLink, likes: 0, timestamp: Date.now() });
+        document.getElementById("magnet-link").value = "";
+      });
+  
+      // Display magnet links
+      db.ref("magnet-links").on("value", function (snapshot) {
+        const links = [];
+        snapshot.forEach(function (childSnapshot) {
+          const link = childSnapshot.val();
+          links.push(link);
         });
-
-        // Load open requests
-        openRequestsCollection.onSnapshot((snapshot) => {
-            const openRequestsList = document.getElementById('open-requests-list');
-            openRequestsList.innerHTML = '';
-            snapshot.docs.forEach((doc) => {
-                const request = document.createElement('li');
-                request.className = 'equest';
-                request.textContent = doc.data().title;
-                openRequestsList.appendChild(request);
+  
+        // Filter links
+        const filter = document.getElementById("filter").value;
+        if (filter === "popularity") {
+          links.sort(function (a, b) {
+            return b.likes - a.likes;
+          });
+        } else if (filter === "recent") {
+          links.sort(function (a, b) {
+            return b.timestamp - a.timestamp;
+          });
+        }
+  
+        // Display links
+        const linksDiv = document.getElementById("links");
+        linksDiv.innerHTML = "";
+        links.forEach(function (link) {
+          const linkCard = document.createElement("div");
+          linkCard.className = "link-card";
+  
+          const linkTitle = document.createElement("a");
+          linkTitle.textContent = link.magnetLink;
+          linkTitle.href = link.magnetLink;
+          linkCard.appendChild(linkTitle);
+  
+          const likesDiv = document.createElement("div");
+          likesDiv.className = "likes";
+          likesDiv.textContent = `Likes: ${link.likes}`;
+          linkCard.appendChild(likesDiv);
+  
+          const likeButton = document.createElement("button");
+          likeButton.textContent = "Like";
+          likeButton.addEventListener("click", function () {
+            db.ref(`magnet-links/${childSnapshot.key}/likes`).transaction(function (likes) {
+              return likes + 1;
             });
+          });
+          linkCard.appendChild(likeButton);
+  
+          linksDiv.appendChild(linkCard);
         });
+      });
     </script>
-</body>
+  </body>
 </html>
