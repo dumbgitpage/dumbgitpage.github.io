@@ -145,9 +145,6 @@ database.ref('requests').on('child_added', function(snapshot) {
         var replyLink = document.createElement('div');
         replyLink.innerHTML = '<strong>Reply:</strong> <a href="' + requestData.reply + '">' + requestData.reply + '</a>';
         document.getElementById('submitted-links').appendChild(replyLink);
-
-        // Remove the open request from the database
-        database.ref('requests/' + requestKey).remove();
     } else {
         // Add a form to reply to the request if no reply exists
         var replyForm = document.createElement('form');
@@ -185,6 +182,19 @@ database.ref('requests').on('child_added', function(snapshot) {
     }
 });
 
+// Retrieve and display submitted links on page load
+database.ref('requests').once('value', function(snapshot) {
+    snapshot.forEach(function(childSnapshot) {
+        var requestData = childSnapshot.val();
+        var requestKey = childSnapshot.key;
+
+        if (requestData.reply) {
+            var replyLink = document.createElement('div');
+            replyLink.innerHTML = '<strong>Reply:</strong> <a href="' + requestData.reply + '">' + requestData.reply + '</a>';
+            document.getElementById('submitted-links').appendChild(replyLink);
+        }
+    });
+});
 
 
 
