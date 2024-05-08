@@ -144,42 +144,44 @@ database.ref('requests').on('child_added', function(snapshot) {
     if (requestData.reply) {
         var replyLink = document.createElement('div');
         replyLink.innerHTML = '<strong>Reply:</strong> <a href="' + requestData.reply + '">' + requestData.reply + '</a>';
-        requestItem.appendChild(replyLink);
+        document.getElementById('submitted-links').appendChild(replyLink);
+
+        // Remove the open request from the database
+        database.ref('requests/' + requestKey).remove();
+    } else {
+        // Add a form to reply to the request if no reply exists
+        var replyForm = document.createElement('form');
+        replyForm.classList.add('reply-form');
+        replyForm.innerHTML = '<input type="text" id="reply-link-' + requestKey + '" placeholder="Enter link">' +
+                              '<button type="button" class="btn reply-btn" data-request-key="' + requestKey + '">Submit Link</button>';
+        
+        // Handle reply submission
+        var replyButton = replyForm.querySelector('.reply-btn');
+        replyButton.addEventListener('click', function() {
+            var linkInput = document.getElementById('reply-link-' + requestKey);
+            var link = linkInput.value.trim();
+
+            if (link !== '') {
+                // Update Firebase with the submitted link
+                var updates = {};
+                updates['/requests/' + requestKey + '/reply'] = link;
+                firebase.database().ref().update(updates)
+                    .then(function() {
+                        alert('Reply submitted successfully!');
+                        // Clear input field after submission
+                        linkInput.value = '';
+                    })
+                    .catch(function(error) {
+                        console.error('Error submitting reply:', error);
+                    });
+            } else {
+                alert('Please enter a link.');
+            }
+        });
+
+        requestItem.appendChild(replyForm);
+        document.getElementById('open-requests').appendChild(requestItem);
     }
-    
-    // Add a form to reply to the request
-    var replyForm = document.createElement('form');
-    replyForm.classList.add('reply-form');
-    replyForm.innerHTML = '<input type="text" id="reply-link-' + requestKey + '" placeholder="Enter link">' +
-                          '<button type="button" class="btn reply-btn" data-request-key="' + requestKey + '">Submit Link</button>';
-    
-    // Handle reply submission
-    var replyButton = replyForm.querySelector('.reply-btn');
-    replyButton.addEventListener('click', function() {
-        var linkInput = document.getElementById('reply-link-' + requestKey);
-        var link = linkInput.value.trim();
-
-        if (link !== '') {
-            // Update Firebase with the submitted link
-            var updates = {};
-            updates['/requests/' + requestKey + '/reply'] = link;
-            firebase.database().ref().update(updates)
-                .then(function() {
-                    alert('Reply submitted successfully!');
-                    // Clear input field after submission
-                    linkInput.value = '';
-                })
-                .catch(function(error) {
-                    console.error('Error submitting reply:', error);
-                });
-        } else {
-            alert('Please enter a link.');
-        }
-    });
-
-    requestItem.appendChild(replyForm);
-
-    document.getElementById('open-requests').appendChild(requestItem);
 });
 
 
