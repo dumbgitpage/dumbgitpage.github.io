@@ -1,160 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- index.html -->
-
 <head>
-    <title>Magnet Link Sharing Platform</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-      }
-  
-     .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-  
-     .form-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 20px;
-      }
-  
-     .form-container input[type="text"] {
-        width: 300px;
-        height: 40px;
-        margin-bottom: 10px;
-      }
-  
-     .form-container button {
-        width: 300px;
-        height: 40px;
-        cursor: pointer;
-      }
-  
-     .link-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-  
-     .link-card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 300px;
-        height: 200px;
-        border: 1px solid #ccc;
-        margin-bottom: 10px;
-      }
-  
-     .link-card a {
-        text-decoration: none;
-        color: #0066cc;
-      }
-  
-     .link-card.likes {
-        margin-top: 10px;
-      }
-    </style>
-  </head>
-  
-  <body>
-    <div class="container">
-      <div class="form-container">
-        <form id="upload-form">
-          <input type="text" id="magnet-link" placeholder="Enter magnet link" required />
-          <button type="submit">Upload</button>
-        </form>
-      </div>
-      <div class="link-container">
-        <div id="links"></div>
-      </div>
-      <div class="filter-container">
-        <label>Filter by:</label>
-        <select id="filter">
-          <option value="popularity">Popularity</option>
-          <option value="recent">Recent</option>
-        </select>
-      </div>
-    </div>
-  
-    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-database.js"></script>
-    <script>
-      // Initialize Firebase
-      const firebaseConfig = {
-  apiKey: "AIzaSyDRDPueFbHs8rrZDuq3kCjSevukjRZztro",
-  authDomain: "commonwebsite-5e316.firebaseapp.com",
-  databaseURL: "https://commonwebsite-5e316-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "commonwebsite-5e316",
-  storageBucket: "commonwebsite-5e316.appspot.com",
-  messagingSenderId: "138538311145",
-  appId: "1:138538311145:web:34d891df8ed4ce16dbbf78"
-};
-  
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.database();
-  
-      // Upload magnet link
-      document.getElementById("upload-form").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const magnetLink = document.getElementById("magnet-link").value;
-        db.ref("magnet-links").push({ magnetLink, likes: 0, timestamp: Date.now() });
-        document.getElementById("magnet-link").value = "";
-      });
-  
-      // Display magnet links
-      db.ref("magnet-links").on("value", function (snapshot) {
-        const links = [];
-        snapshot.forEach(function (childSnapshot) {
-          const link = childSnapshot.val();
-          links.push(link);
-        });
-  
-        // Filter links
-        const filter = document.getElementById("filter").value;
-        if (filter === "popularity") {
-          links.sort(function (a, b) {
-            return b.likes - a.likes;
-          });
-        } else if (filter === "recent") {
-          links.sort(function (a, b) {
-            return b.timestamp - a.timestamp;
-          });
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magnet Links</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-database.js"></script>
+  <style>
+    #links {
+      display: flex;
+      flex-direction: column;
+    }
+    .link-card {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .likes {
+      align-self: flex-start;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Magnet Links</h1>
+  <div id="links"></div>
+  <input type="text" id="magnet-input" placeholder="Enter magnet link" />
+  <button id="submit-btn">Submit</button>
+  <script>
+    const firebaseConfig = {
+      // Your Firebase configuration goes here
+      apiKey: "AIzaSyDRDPueFbHs8rrZDuq3kCjSevukjRZztro",
+    authDomain: "commonwebsite-5e316.firebaseapp.com",
+    databaseURL: "https://commonwebsite-5e316-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "commonwebsite-5e316",
+    storageBucket: "commonwebsite-5e316.appspot.com",
+    messagingSenderId: "138538311145",
+    appId: "1:138538311145:web:34d891df8ed4ce16dbbf78"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const linksRef = db.ref("magnetLinks");
+
+    function toggleStar(linkRef, uid) {
+      linkRef.transaction((link) => {
+        if (link) {
+          if (link.stars && link.stars[uid]) {
+            link.starCount--;
+            link.stars[uid] = null;
+          } else {
+            link.starCount++;
+            if (!link.stars) {
+              link.stars = {};
+            }
+            link.stars[uid] = true;
+          }
         }
-  
-        // Display links
-        const linksDiv = document.getElementById("links");
-        linksDiv.innerHTML = "";
-        links.forEach(function (link) {
-          const linkCard = document.createElement("div");
-          linkCard.className = "link-card";
-  
-          const linkTitle = document.createElement("a");
-          linkTitle.textContent = link.magnetLink;
-          linkTitle.href = link.magnetLink;
-          linkCard.appendChild(linkTitle);
-  
-          const likesDiv = document.createElement("div");
-          likesDiv.className = "likes";
-          likesDiv.textContent = `Likes: ${link.likes}`;
-          linkCard.appendChild(likesDiv);
-  
-          const likeButton = document.createElement("button");
-          likeButton.textContent = "Like";
-          likeButton.addEventListener("click", function () {
-            db.ref(`magnet-links/${childSnapshot.key}/likes`).transaction(function (likes) {
-              return likes + 1;
-            });
-          });
-          linkCard.appendChild(likeButton);
-  
-          linksDiv.appendChild(linkCard);
-        });
+        return link;
       });
-    </script>
-  </body>
+    }
+
+    function displayMagnetLink(link) {
+      const linksDiv = document.getElementById("links");
+      const linkCard = document.createElement("div");
+      linkCard.className = "link-card";
+
+      const linkTitle = document.createElement("a");
+      linkTitle.textContent = link.magnetLink;
+      linkTitle.href = link.magnetLink;
+      linkCard.appendChild(linkTitle);
+
+      const likesDiv = document.createElement("div");
+      likesDiv.className = "likes";
+      likesDiv.textContent = `Likes: ${link.starCount}`;
+      linkCard.appendChild(likesDiv);
+
+      const likeButton = document.createElement("button");
+      likeButton.textContent = "Like";
+      likeButton.addEventListener("click", () => {
+        toggleStar(linkRef, user.uid);
+      });
+      linkCard.appendChild(likeButton);
+
+      linksDiv.appendChild(linkCard);
+    }
+
+    function submitMagnetLink() {
+      const magnetLink = document.getElementById("magnet-input").value;
+      if (magnetLink) {
+        const linkRef = linksRef.push();
+        linkRef.set({
+          magnetLink,
+          starCount: 0,
+          stars: {},
+          timestamp: Date.now(),
+        });
+        linkRef.on("value", (snapshot) => {
+          const link = snapshot.val();
+          displayMagnetLink(link);
+        });
+      }
+    }
+
+    document.getElementById("submit-btn").addEventListener("click", submitMagnetLink);
+
+    // Example usage
+    const magnetLink = "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef";
+    linksRef.push().set({
+      magnetLink,
+      starCount: 0,
+      stars: {},
+      timestamp: Date.now(),
+    });
+  </script>
+</body>
 </html>
+
+
+
+
+
+// const firebaseConfig = {
+    apiKey: "AIzaSyDRDPueFbHs8rrZDuq3kCjSevukjRZztro",
+    authDomain: "commonwebsite-5e316.firebaseapp.com",
+    databaseURL: "https://commonwebsite-5e316-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "commonwebsite-5e316",
+    storageBucket: "commonwebsite-5e316.appspot.com",
+    messagingSenderId: "138538311145",
+    appId: "1:138538311145:web:34d891df8ed4ce16dbbf78"
+  };
