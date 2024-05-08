@@ -167,14 +167,6 @@ database.ref('requests').on('child_added', function(snapshot) {
                 updates['/requests/' + requestKey + '/reply'] = link;
                 firebase.database().ref().update(updates)
                     .then(function() {
-                        // Store the submitted link in the "Submitted Links" division
-                        var replyLink = document.createElement('div');
-                        replyLink.innerHTML = '<strong>Reply:</strong> <a href="' + link + '">' + link + '</a>';
-                        document.getElementById('submitted-links').appendChild(replyLink);
-
-                        // Remove the open request from the database
-                        database.ref('requests/' + requestKey).remove();
-
                         // Clear input field after submission
                         linkInput.value = '';
 
@@ -192,6 +184,7 @@ database.ref('requests').on('child_added', function(snapshot) {
         document.getElementById('open-requests').appendChild(requestItem);
     }
 });
+
 
 
 
