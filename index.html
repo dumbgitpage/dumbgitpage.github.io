@@ -1,134 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Magnet Links</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-database.js"></script>
-  <style>
-    #links {
-      display: flex;
-      flex-direction: column;
-    }
-    .link-card {
-      display: flex;
-      flex-direction: column;
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-    .likes {
-      align-self: flex-start;
-      margin-top: 5px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Torrent Requests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+        .title-bar {
+            background-color: #007bff;
+            color: #ffffff;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 35px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+        }
+        .btn {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .request-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #666666;
+        }
+    </style>
 </head>
 <body>
-  <h1>Magnet Links</h1>
-  <div id="links"></div>
-  <input type="text" id="magnet-input" placeholder="Enter magnet link" />
-  <button id="submit-btn">Submit</button>
-  <script>
-    const firebaseConfig = {
-      // Your Firebase configuration goes here
-      apiKey: "AIzaSyDRDPueFbHs8rrZDuq3kCjSevukjRZztro",
+    <div class="title-bar">Common Website</div>
+    <div class="container">
+        <div class="form-group">
+            <label for="movie-title">Movie Title:</label>
+            <input type="text" id="movie-title" placeholder="Enter movie title">
+        </div>
+        <div class="form-group">
+            <label for="movie-description">Description:</label>
+            <textarea id="movie-description" rows="3" maxlength="50" placeholder="Enter description (max 50 words)"></textarea>
+        </div>
+        <button class="btn" onclick="submitRequest()">Submit Request</button>
+        
+        <h2>Open Requests</h2>
+        <div id="open-requests"></div>
+
+        <h2>Submitted Links</h2>
+        <div id="submitted-links"></div>
+    </div>
+    <div class="footer">
+        &copy; 2024 Common Website
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.3.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.3/firebase-database.js"></script>
+
+    <script>
+        // Your Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyDRDPueFbHs8rrZDuq3kCjSevukjRZztro",
     authDomain: "commonwebsite-5e316.firebaseapp.com",
     databaseURL: "https://commonwebsite-5e316-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "commonwebsite-5e316",
     storageBucket: "commonwebsite-5e316.appspot.com",
     messagingSenderId: "138538311145",
     appId: "1:138538311145:web:34d891df8ed4ce16dbbf78"
-    };
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const linksRef = db.ref("magnetLinks");
+        var database = firebase.database();
 
-    function toggleStar(linkRef, uid) {
-      linkRef.transaction((link) => {
-        if (link) {
-          if (link.stars && link.stars[uid]) {
-            link.starCount--;
-            link.stars[uid] = null;
-          } else {
-            link.starCount++;
-            if (!link.stars) {
-              link.stars = {};
+        function submitRequest() {
+            var title = document.getElementById('movie-title').value.trim();
+            var description = document.getElementById('movie-description').value.trim();
+
+            if (title !== '' && description !== '') {
+                var requestData = {
+                    title: title,
+                    description: description
+                };
+
+                // Push the request data to Firebase
+                database.ref('requests').push(requestData)
+                    .then(function() {
+                        // Clear form fields
+                        document.getElementById('movie-title').value = '';
+                        document.getElementById('movie-description').value = '';
+                        alert('Request submitted successfully!');
+                    })
+                    .catch(function(error) {
+                        console.error('Error submitting request:', error);
+                    });
+            } else {
+                alert('Please fill in all the fields.');
             }
-            link.stars[uid] = true;
-          }
         }
-        return link;
-      });
-    }
 
-    function displayMagnetLink(link) {
-      const linksDiv = document.getElementById("links");
-      const linkCard = document.createElement("div");
-      linkCard.className = "link-card";
+        // Listen for changes in the requests node
+        database.ref('requests').on('child_added', function(snapshot) {
+            var requestData = snapshot.val();
+            var requestKey = snapshot.key;
 
-      const linkTitle = document.createElement("a");
-      linkTitle.textContent = link.magnetLink;
-      linkTitle.href = link.magnetLink;
-      linkCard.appendChild(linkTitle);
+            var requestItem = document.createElement('div');
+            requestItem.classList.add('request-item');
+            requestItem.innerHTML = '<strong>Title:</strong> ' + requestData.title + '<br><strong>Description:</strong> ' + requestData.description;
+            
+            // Add a button to reply to the request
+            var replyButton = document.createElement('button');
+            replyButton.textContent = 'Reply';
+            replyButton.classList.add('btn');
+            replyButton.onclick = function() {
+                // Handle reply functionality
+                // You can add your code here to handle replying to requests
+                alert('You clicked reply for request with key: ' + requestKey);
+            };
+            requestItem.appendChild(replyButton);
 
-      const likesDiv = document.createElement("div");
-      likesDiv.className = "likes";
-      likesDiv.textContent = `Likes: ${link.starCount}`;
-      linkCard.appendChild(likesDiv);
-
-      const likeButton = document.createElement("button");
-      likeButton.textContent = "Like";
-      likeButton.addEventListener("click", () => {
-        toggleStar(linkRef, user.uid);
-      });
-      linkCard.appendChild(likeButton);
-
-      linksDiv.appendChild(linkCard);
-    }
-
-    function submitMagnetLink() {
-      const magnetLink = document.getElementById("magnet-input").value;
-      if (magnetLink) {
-        const linkRef = linksRef.push();
-        linkRef.set({
-          magnetLink,
-          starCount: 0,
-          stars: {},
-          timestamp: Date.now(),
+            document.getElementById('open-requests').appendChild(requestItem);
         });
-        linkRef.on("value", (snapshot) => {
-          const link = snapshot.val();
-          displayMagnetLink(link);
-        });
-      }
-    }
-
-    document.getElementById("submit-btn").addEventListener("click", submitMagnetLink);
-
-    // Example usage
-    const magnetLink = "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef";
-    linksRef.push().set({
-      magnetLink,
-      starCount: 0,
-      stars: {},
-      timestamp: Date.now(),
-    });
-  </script>
+    </script>
 </body>
 </html>
-
-
-
-
-
-// const firebaseConfig = {
-    apiKey: "AIzaSyDRDPueFbHs8rrZDuq3kCjSevukjRZztro",
-    authDomain: "commonwebsite-5e316.firebaseapp.com",
-    databaseURL: "https://commonwebsite-5e316-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "commonwebsite-5e316",
-    storageBucket: "commonwebsite-5e316.appspot.com",
-    messagingSenderId: "138538311145",
-    appId: "1:138538311145:web:34d891df8ed4ce16dbbf78"
-  };
