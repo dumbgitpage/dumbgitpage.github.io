@@ -70,8 +70,8 @@
             <input type="text" id="title" name="title" required><br>
             <label for="description">Description (50 words limit):</label><br>
             <textarea id="description" name="description" rows="3" maxlength="50" required></textarea><br>
-            <label for ="type">Media Type</label>
-           <input type="radio" id="type">Movie
+            <label for="media_type">Media Type:</label><br>
+            <textarea id="media_type" name="media_type" rows="1" maxlength="5" required></textarea><br>
             <button type="submit">Submit Request</button>
         </form>
         <hr>
@@ -113,6 +113,7 @@
                 var requestItem = document.createElement('div');
                 requestItem.classList.add('request-item');
                 requestItem.innerHTML = '<strong>Title:</strong> ' + requestData.title + '<br><strong>Description:</strong> ' + requestData.description +
+                                        '<strong>Media Type:</strong> ' + requestData.media_type +   
                                         '<form class="reply-form" id="reply-form-' + requestKey + '">' +
                                         '<input type="text" id="link-' + requestKey + '" placeholder="Enter link">' +
                                         '<button type="submit" data-request-key="' + requestKey + '">Submit Link</button>' +
@@ -158,7 +159,7 @@
                 var linkItem = document.createElement('div');
                 linkItem.classList.add('link-item');
                 linkItem.innerHTML = '<strong>Title:</strong> ' + linkData.title + '<br><strong>Description:</strong> ' + linkData.description + '<br><strong>Link:</strong> <a href="' + linkData.link + '" onclick="copyLink(\'' + linkData.link + '\'); return false;">Right click to copy</a>' +
-                                     '<div class="like-dislike">' +
+                                     '<div class="like-dislike">' + '<strong>Media Type:</strong> ' + requestData.media_type +  
                                      '<button class="like-btn" onclick="likeLink(\'' + snapshot.key + '\')">Like (' + linkData.likes + ')</button>' +
                                      '<button class="dislike-btn" onclick="dislikeLink(\'' + snapshot.key + '\')">Dislike (' + linkData.dislikes + ')</button>' +
                                      '</div>';
