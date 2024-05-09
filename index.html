@@ -156,11 +156,12 @@
 
                 var linkItem = document.createElement('div');
                 linkItem.classList.add('link-item');
-                linkItem.innerHTML = '<strong>Title:</strong> ' + linkData.title + '<br><strong>Description:</strong> ' + linkData.description + '<br><strong>Link:</strong> <a href="' + linkData.link + '">' + linkData.link + '</a>' +
+                linkItem.innerHTML = '<strong>Title:</strong> ' + linkData.title + '<br><strong>Description:</strong> ' + linkData.description + '<br><strong>Link:</strong> <a href="' + linkData.link + '" onclick="copyLink(\'' + linkData.link + '\'); return false;">Right click to copy</a>' +
                                      '<div class="like-dislike">' +
                                      '<button class="like-btn" onclick="likeLink(\'' + snapshot.key + '\')">Like (' + linkData.likes + ')</button>' +
                                      '<button class="dislike-btn" onclick="dislikeLink(\'' + snapshot.key + '\')">Dislike (' + linkData.dislikes + ')</button>' +
                                      '</div>';
+
 
                 document.getElementById('submitted-links').appendChild(linkItem);
             });
@@ -193,6 +194,17 @@
                 alert('Please fill in all fields.');
             }
         });
+        // Function to handle copyLink 
+        function copyLink(link) {
+    // Copy the link to the clipboard
+    navigator.clipboard.writeText(link)
+        .then(function() {
+            alert('Link copied to clipboard!');
+        })
+        .catch(function(error) {
+            console.error('Error copying link:', error);
+        });
+}
 
         // Function to handle like action on a link
         function likeLink(linkKey) {
