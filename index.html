@@ -44,21 +44,7 @@
             padding: auto;
             
         }
-        .like-dislike {
-            margin-top: 5px;
-        }
-        .like-btn, .dislike-btn {
-            margin-right: 10px;
-            cursor: pointer;
-            color: #fff; /* White text color for buttons */
-            background-color: #007bff; /* Blue button */
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-        }
-        .like-btn:hover, .dislike-btn:hover {
-            background-color: #0056b3; /* Darker blue on hover */
-        }
+        
     </style>
 </head>
 <body>
@@ -129,9 +115,8 @@
                         updates['/submitted_links/' + requestKey] = {
                             title: requestData.title,
                             description: requestData.description,
-                            link: link,
-                            likes: 0,
-                            dislikes: 0
+                            link: link
+                            
                         };
                         updates['/requests/' + requestKey] = null; // Remove the open request
                         firebase.database().ref().update(updates)
@@ -157,11 +142,10 @@
 
                 var linkItem = document.createElement('div');
                 linkItem.classList.add('link-item');
-                linkItem.innerHTML = '<strong>Title:</strong> ' + linkData.title + '<br><strong>Description:</strong> ' + linkData.description + '<br><strong>Link:</strong> <a href="' + linkData.link + '" onclick="copyLink(\'' + linkData.link + '\'); return false;">Right click to copy</a>' +
-                                     '<div class="like-dislike">'   
-                                     '<button class="like-btn" onclick="likeLink(\'' + snapshot.key + '\')">Like (' + linkData.likes + ')</button>' +
-                                     '<button class="dislike-btn" onclick="dislikeLink(\'' + snapshot.key + '\')">Dislike (' + linkData.dislikes + ')</button>' +
-                                     '</div>';
+                linkItem.innerHTML = '<strong>Title:</strong> ' + linkData.title + '<br><strong>Description:</strong> ' + 
+                                    linkData.description + '<br><strong>Link:</strong> <a href="' + linkData.link + '" onclick="copyLink(\'' + 
+                                    linkData.link + '\'); return false;">Click to copy</a>' 
+                                     ;
 
 
                 document.getElementById('submitted-links').appendChild(linkItem);
@@ -208,20 +192,21 @@
 }
 
         // Function to handle like action on a link
-        function likeLink(linkKey) {
-            var linkRef = database.ref('submitted_links/' + linkKey + '/likes');
-            linkRef.transaction(function(likes) {
-                return (likes || 0) + 1;
-            });
-        }
+       // function likeLink(linkKey) {
+         //   var linkRef = database.ref('submitted_links/' + linkKey + '/likes');
+          //  linkRef.transaction(function(likes) {
+            //    return (likes || 0) + 1;
+           // });
+       // } 
+        
 
         // Function to handle dislike action on a link
-        function dislikeLink(linkKey) {
-            var linkRef = database.ref('submitted_links/' + linkKey + '/dislikes');
-            linkRef.transaction(function(dislikes) {
-                return (dislikes || 0) + 1;
-            });
-        }
+       // function dislikeLink(linkKey) {
+         //   var linkRef = database.ref('submitted_links/' + linkKey + '/dislikes');
+        //    linkRef.transaction(function(dislikes) {
+         //       return (dislikes || 0) + 1;
+           // });
+       // }
 
         // Call the functions to display open requests and submitted links
         displayOpenRequests();
