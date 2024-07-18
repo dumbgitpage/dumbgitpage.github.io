@@ -1,1 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConnectAll - Messaging Redefined</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        header {
+            background: #000;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .intro {
+            text-align: center;
+            margin: 40px 0;
+        }
+        .intro h2 {
+            font-size: 2em;
+        }
+        .intro p {
+            font-size: 1.2em;
+        }
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .feature {
+            flex: 1 1 30%;
+            background: #fff;
+            padding: 20px;
+            margin: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .feature h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .feature p {
+            font-size: 1em;
+        }
+        .contact-form {
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 40px auto;
+        }
+        .contact-form h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .contact-form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .contact-form input, .contact-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .contact-form button {
+            background: #000;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .contact-form button:hover {
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>ConnectAll</h1>
+    <p>Messaging Redefined</p>
+</header>
+
+<div class="container">
+    <div class="intro">
+        <h2>Welcome to ConnectAll</h2>
+        <p>Connect with everyone on Earth without saving contact numbers.</p>
+    </div>
+
+    <div class="features">
+        <div class="feature">
+            <h3>Global Connectivity</h3>
+            <p>Connect with anyone, anywhere, without needing their contact number.</p>
+        </div>
+        <div class="feature">
+            <h3>Promoted Messaging</h3>
+            <p>Your messages are only visible when promoted by 55% of your followers.</p>
+        </div>
+        <div class="feature">
+            <h3>Support and Follow</h3>
+            <p>Support your favorite users and celebrities through verification videos.</p>
+        </div>
+        <div class="feature">
+            <h3>Text-Based Communication</h3>
+            <p>Purely text-based messaging with emojis. No documents, pictures, or gifs.</p>
+        </div>
+        <div class="feature">
+            <h3>Secure Verification</h3>
+            <p>Mobile number registration with OTP verification ensures security.</p>
+        </div>
+        <div class="feature">
+            <h3>User-Friendly Profile</h3>
+            <p>Set a profile picture, choose a unique username, and add a bio.</p>
+        </div>
+    </div>
+
+    <div class="contact-form">
+        <h3>Contact Us</h3>
+        <form id="contactForm">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows="4" required></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('contactForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        alert('Thank you for your message! We will get back to you soon.');
+    });
+</script>
+
+</body>
+</html>
 
