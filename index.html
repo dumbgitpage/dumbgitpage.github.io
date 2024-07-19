@@ -125,7 +125,25 @@
         <h2>Looking for a Sponser and team to make this Application in reality</h2>
         <p>Connect with everyone on Earth without saving contact numbers. A new era of global connectivity is here.</p>
     </div>
+<img src="path/to/your/image.jpg" alt="Thumbnail" class="thumbnail" onclick="openFullscreen()">
 
+    <!-- Fullscreen Overlay -->
+    <div id="fullscreenOverlay" class="overlay">
+        <span class="close-btn" onclick="closeFullscreen()">&times;</span>
+        <img src="path/to/your/image.jpg" alt="Full Image">
+    </div>
+
+    <script>
+        // Function to open fullscreen
+        function openFullscreen() {
+            document.getElementById('fullscreenOverlay').style.display = 'flex';
+        }
+
+        // Function to close fullscreen
+        function closeFullscreen() {
+            document.getElementById('fullscreenOverlay').style.display = 'none';
+        }
+    </script>
     <div class="features">
         <div class="feature">
             <h3>Global Connectivity</h3>
