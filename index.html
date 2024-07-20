@@ -237,10 +237,10 @@
             const email = document.getElementById('email').value;
             const message = document.getElementById('message').value;
 
-            fetch('https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME/contents/submissions/data.json', {
+            fetch('https://api.github.com/repos/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/contents/submissions/data.json', {
                 method: 'GET',
                 headers: {
-                    'Authorization': `token YOUR_GITHUB_PERSONAL_ACCESS_TOKEN`,
+                    'Authorization': `token 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`,
                     'Accept': 'application/vnd.github.v3+json'
                 }
             })
@@ -255,10 +255,10 @@
                     content = btoa(JSON.stringify([{ name, email, message }], null, 2));
                 }
 
-                fetch(`https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME/contents/submissions/data.json`, {
+                fetch(`https://api.github.com/repos/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/contents/submissions/data.json`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `token YOUR_GITHUB_PERSONAL_ACCESS_TOKEN`,
+                        'Authorization': `token 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`,
                         'Accept': 'application/vnd.github.v3+json'
                     },
                     body: JSON.stringify({
