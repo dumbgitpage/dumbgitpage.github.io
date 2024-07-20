@@ -215,18 +215,72 @@
        
     </div>
 
-    <div class="contact-form">
-        <h3>Contact Us</h3>
-        <form id="contactForm" action="send_email.php" method="POST">
-            <label for="name">Name</label>
-            <input type="text" id="name" name="name" required>
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
-            <label for="message">Message</label>
-            <textarea id="message" name="message" rows="4" required></textarea>
-            <button type="submit">Submit</button>
-        </form>
-    </div>
+    <h2>Contact Us</h2>
+    <form id="contactForm">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+        
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+        
+        <label for="message">Message:</label><br>
+        <textarea id="message" name="message" required></textarea><br><br>
+        
+        <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+
+            fetch('https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME/contents/submissions/data.json', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `token YOUR_GITHUB_PERSONAL_ACCESS_TOKEN`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let content = "";
+                if (data.content) {
+                    const decodedData = JSON.parse(atob(data.content));
+                    decodedData.push({ name, email, message });
+                    content = btoa(JSON.stringify(decodedData, null, 2));
+                } else {
+                    content = btoa(JSON.stringify([{ name, email, message }], null, 2));
+                }
+
+                fetch(`https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME/contents/submissions/data.json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token YOUR_GITHUB_PERSONAL_ACCESS_TOKEN`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                        message: 'New contact form submission',
+                        content: content,
+                        sha: data.sha
+                    })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.content) {
+                        alert('Your message has been sent!');
+                        document.getElementById('contactForm').reset();
+                    } else {
+                        alert('There was an error submitting your message.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
 </div>
 
     <footer>
