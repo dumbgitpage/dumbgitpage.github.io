@@ -6,7 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Check if data is valid
     if (empty($name) || empty($message) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        http_response_code(400);
+        https_response_code(400);
         echo "Please fill in all fields correctly.";
         exit;
     }
@@ -27,15 +27,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Send the email
     if (mail($recipient, $subject, $email_content, $email_headers)) {
-        http_response_code(200);
+        https_response_code(200);
         echo "Thank you! Your message has been sent.";
     } else {
-        http_response_code(500);
+        https_response_code(500);
         echo "Oops! Something went wrong, and we couldn't send your message.";
     }
 
 } else {
-    http_response_code(403);
+    https_response_code(403);
     echo "There was a problem with your submission, please try again.";
 }
 ?>
