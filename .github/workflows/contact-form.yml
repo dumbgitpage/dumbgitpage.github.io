@@ -1,0 +1,27 @@
+name: Handle Contact Form Submission
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  handle-submission:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'contact-form')
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Process submission
+      run: |
+        echo "Processing new contact form submission..."
+        ISSUE_BODY=$(echo "${{ github.event.issue.body }}" | jq -Rs .)
+        SUBMISSION=$(jq -n --argjson body "$ISSUE_BODY" '{name: $body}' > submissions/data.json)
+        
+    - name: Commit changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+        git add submissions/data.json
+        git commit -m 'Add new contact form submission'
+        git push
