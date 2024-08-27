@@ -1,6 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
+<head><!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+    <style>
+        body {
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .digital-clock {
+            color: #00FF00;
+            font-size: 100px;
+            letter-spacing: 10px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .digital-clock span {
+            display: inline-block;
+            width: 1ch;
+            height: 1em;
+            font-family: 'Courier New', Courier, monospace;
+            background: linear-gradient(to bottom, transparent 48%, currentColor 50%);
+            -webkit-background-clip: text;
+            color: transparent;
+            position: relative;
+            animation: blink 1s step-end infinite alternate;
+        }
+
+        .digital-clock span:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 1px,
+                currentColor 1px,
+                currentColor 2px
+            );
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="digital-clock">
+        <span>D</span><span>U</span><span>M</span><span>B</span>
+        <span> </span>
+        <span>G</span><span>I</span><span>T</span>
+    </div>
+</body>
+</html>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>World Wide Messages</title>
