@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Job Details</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Enter Job Details</h1>
+    </header>
+    <main>
+        <form class="job-form" id="jobForm">
+            <div class="form-group">
+                <label for="job-title">Job Title:</label>
+                <input type="text" id="job-title" name="jobTitle" required>
+            </div>
+            <div class="form-group">
+                <label for="job-age">Age Range:</label>
+                <input type="text" id="job-age" name="ageRange" required>
+            </div>
+            <div class="form-group">
+                <label for="job-qualification">Qualification/Degree:</label>
+                <input type="text" id="job-qualification" name="qualification" required>
+            </div>
+            <div class="form-group">
+                <label for="job-experience">Experience:</label>
+                <input type="text" id="job-experience" name="experience" required>
+            </div>
+            <div class="form-group">
+                <label for="job-link">Job Link:</label>
+                <input type="url" id="job-link" name="jobLink" required>
+            </div>
+            <div class="form-group">
+                <label for="notification-link">Notification Link:</label>
+                <input type="url" id="notification-link" name="notificationLink" required>
+            </div>
+            <button type="button" class="submit-button" onclick="generateJobPage()">Generate Job Page</button>
+        </form>
+    </main>
+    <footer>
+        <p>Made by Baghel Bros</p>
+    </footer>
+    <script>
+        function generateJobPage() {
+            const title = document.getElementById('job-title').value;
+            const age = document.getElementById('job-age').value;
+            const qualification = document.getElementById('job-qualification').value;
+            const experience = document.getElementById('job-experience').value;
+            const jobLink = document.getElementById('job-link').value;
+            const notificationLink = document.getElementById('notification-link').value;
+
+            const jobPageContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>${title}</h1>
+    </header>
+    <main>
+        <section class="job-details">
+            <h2 class="job-title">${title}</h2>
+            <div class="details">
+                <p><strong>Age:</strong> ${age}</p>
+                <p><strong>Qualification/Degree:</strong> ${qualification}</p>
+                <p><strong>Experience:</strong> ${experience}</p>
+                <div class="links">
+                    <a href="${jobLink}" target="_blank">View Job</a>
+                    <a href="${notificationLink}" target="_blank">View Notification</a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>Made by Baghel Bros</p>
+    </footer>
+</body>
+</html>`;
+
+            const blob = new Blob([jobPageContent], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${title.replace(/\s+/g, '_')}_job_page.html`;
+            link.click();
+        }
+    </script>
+</body>
+</html>
