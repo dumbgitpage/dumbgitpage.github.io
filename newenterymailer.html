@@ -3,46 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enter Job Details</title>
+    <title>Admin Login and Job Entry</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js"></script>
 </head>
 <body>
     <header>
-        <h1>Enter Job Details</h1>
+        <h1>Admin Access</h1>
     </header>
     <main>
-        <form class="job-form" id="jobForm">
-            <div class="form-group">
-                <label for="job-title">Job Title:</label>
-                <input type="text" id="job-title" name="jobTitle" required>
-            </div>
-            <div class="form-group">
-                <label for="job-age">Age Range:</label>
-                <input type="text" id="job-age" name="ageRange" required>
-            </div>
-            <div class="form-group">
-                <label for="job-qualification">Qualification/Degree:</label>
-                <input type="text" id="job-qualification" name="qualification" required>
-            </div>
-            <div class="form-group">
-                <label for="job-experience">Experience:</label>
-                <input type="text" id="job-experience" name="experience" required>
-            </div>
-            <div class="form-group">
-                <label for="job-link">Job Link:</label>
-                <input type="url" id="job-link" name="jobLink" required>
-            </div>
-            <div class="form-group">
-                <label for="notification-link">Notification Link:</label>
-                <input type="url" id="notification-link" name="notificationLink" required>
-            </div>
-            <button type="button" class="submit-button" onclick="generateJobPage()">Generate Job Page</button>
-        </form>
+        <!-- Login Form -->
+        <div id="login-section">
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="admin-username">Email:</label>
+                    <input type="email" id="admin-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-password">Password:</label>
+                    <input type="password" id="admin-password" name="password" required>
+                </div>
+                <button type="button" class="submit-button" onclick="validateLogin()">Login</button>
+            </form>
+            <div id="error-message" style="color: red; display: none;">Invalid email or password. Please try again.</div>
+        </div>
+
+        <!-- Job Entry Form (Hidden Initially) -->
+        <div id="job-entry-section" style="display: none;">
+            <form class="job-form" id="jobForm">
+                <div class="form-group">
+                    <label for="job-title">Job Title:</label>
+                    <input type="text" id="job-title" name="jobTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="job-age">Age Range:</label>
+                    <input type="text" id="job-age" name="ageRange" required>
+                </div>
+                <div class="form-group">
+                    <label for="job-qualification">Qualification/Degree:</label>
+                    <input type="text" id="job-qualification" name="qualification" required>
+                </div>
+                <div class="form-group">
+                    <label for="job-experience">Experience:</label>
+                    <input type="text" id="job-experience" name="experience" required>
+                </div>
+                <div class="form-group">
+                    <label for="job-link">Job Link:</label>
+                    <input type="url" id="job-link" name="jobLink" required>
+                </div>
+                <div class="form-group">
+                    <label for="notification-link">Notification Link:</label>
+                    <input type="url" id="notification-link" name="notificationLink" required>
+                </div>
+                <button type="button" class="submit-button" onclick="generateJobPage()">Generate Job Page</button>
+            </form>
+        </div>
     </main>
     <footer>
         <p>Made by Baghel Bros</p>
     </footer>
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+  apiKey: "AIzaSyAv4ibwbJu828Dwz67tyYPMJnfu4RuuUrs",
+  authDomain: "baghelbros-a85ba.firebaseapp.com",
+  databaseURL: "https://baghelbros-a85ba-default-rtdb.firebaseio.com",
+  projectId: "baghelbros-a85ba",
+  storageBucket: "baghelbros-a85ba.firebasestorage.app",
+  messagingSenderId: "9594069493",
+  appId: "1:9594069493:web:59c8da65cf6e74119100bc",
+  measurementId: "G-CWBRBQG0FC"
+};
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        function validateLogin() {
+            const email = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('job-entry-section').style.display = 'block';
+                })
+                .catch((error) => {
+                    console.error(error.message);
+                    document.getElementById('error-message').style.display = 'block';
+                });
+        }
+
         function generateJobPage() {
             const title = document.getElementById('job-title').value;
             const age = document.getElementById('job-age').value;
@@ -86,7 +138,7 @@
             const blob = new Blob([jobPageContent], { type: 'text/html' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `${title.replace(/\s+/g, '_')}_job_page.html`;
+            link.download = `${title.replace(/\\s+/g, '_')}_job_page.html`;
             link.click();
         }
     </script>
