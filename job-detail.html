@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JobScout Search — Job Details</title>
+  <meta name="description" content="JobScout Search job detail page with official apply link and available listing details.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header hero-header">
+    <div class="header-brand">
+      <div class="brand-mark">J</div>
+      <div>
+        <p class="brand-subtitle">JobScout Search</p>
+        <h1>Job details</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main detail-panel">
+    <section class="panel detail-content">
+      <div class="detail-toolbar">
+        <a class="back-link" href="index.html">← Back to search</a>
+        <a id="detailApplyButton" class="apply-action" href="#" target="_blank" rel="noopener noreferrer">Apply</a>
+      </div>
+      <div id="detailContent"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>JobScout Search uses live web search results to find official apply pages and career listings.</p>
+  </footer>
+
+  <script>
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name) || '';
+    }
+
+    function buildDetailRow(label, value) {
+      if (!value) return '';
+      return `
+        <div class="detail-row">
+          <label>${escapeHtml(label)}</label>
+          <span>${escapeHtml(value)}</span>
+        </div>
+      `;
+    }
+
+    function showDetailError(message, url) {
+      const detailContent = document.getElementById('detailContent');
+      detailContent.innerHTML = `
+        <p class="result-snippet">${escapeHtml(message)}</p>
+        ${url ? `<div class="detail-row"><label>Original job link</label><a class="result-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a></div>` : ''}
+      `;
+      const applyButton = document.getElementById('detailApplyButton');
+      if (url) {
+        applyButton.href = url;
+        applyButton.textContent = 'Apply';
+        applyButton.style.display = 'inline-flex';
+      } else {
+        applyButton.style.display = 'none';
+      }
+    }
+
+    async function renderDetailPage() {
+      const url = getQueryParam('url');
+      const title = getQueryParam('title');
+      const detailContent = document.getElementById('detailContent');
+      const applyButton = document.getElementById('detailApplyButton');
+
+      if (!url) {
+        showDetailError('No job URL provided. Go back and select a job listing.', '');
+        return;
+      }
+
+      applyButton.href = url;
+      applyButton.textContent = 'Apply';
+      applyButton.style.display = 'inline-flex';
+
+      try {
+        const response = await fetch(`/api/job-detail?url=${encodeURIComponent(url)}`);
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.error || 'Unable to load job detail');
+        }
+
+        const data = await response.json();
+        const rows = [];
+        rows.push(buildDetailRow('Title', data.title || title));
+        rows.push(buildDetailRow('Company', data.company));
+        rows.push(buildDetailRow('Location', data.location));
+        rows.push(buildDetailRow('Posted', data.posted));
+        rows.push(buildDetailRow('Source', data.source));
+
+        if (data.description) {
+          rows.push(`
+            <div class="detail-row detail-description">
+              ${escapeHtml(data.description)}
+            </div>
+          `);
+        }
+
+        if (data.applyUrl) {
+          rows.push(`
+            <div class="detail-row">
+              <label>Apply page</label>
+              <a class="result-link" href="${escapeHtml(data.applyUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(data.applyUrl)}</a>
+            </div>
+          `);
+        }
+
+        detailContent.innerHTML = rows.filter(Boolean).join('');
+      } catch (error) {
+        console.error('Detail page load failed:', error);
+        showDetailError('Unable to load job details. You can still apply through the original listing.', url);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', renderDetailPage);
+  </script>
+</body>
+</html>

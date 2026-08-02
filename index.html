@@ -3,102 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Job Search Engine</title>
+    <title>JobScout Search — Live job engine</title>
+    <meta name="description" content="Search official job listings and career pages from employer websites with a clean search-first experience.">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header class="site-header">
-        <div class="header-content">
+    <header class="site-header hero-header">
+        <div class="header-brand">
+            <div class="brand-mark">J</div>
             <div>
-                <p class="eyebrow">Open Source AI Job Search</p>
+                <p class="brand-subtitle">JobScout Search</p>
                 <h1>Search jobs worldwide</h1>
-                <p class="subtext">Find the best remote, hybrid and local job opportunities with smart search, filters and pagination.</p>
-            </div>
-            <div class="search-box">
-                <input id="searchInput" type="search" placeholder="Search jobs, titles, skills, companies..." aria-label="Search jobs">
-                <button id="searchButton">Search</button>
             </div>
         </div>
+        <p class="header-copy">A search homepage for live job listings and official employer career pages.</p>
     </header>
-    <main class="page-main">
-        <section class="controls-panel">
-            <div class="filter-card">
-                <h2>Filters</h2>
-                <label>
-                    Location
-                    <input id="locationFilter" type="text" placeholder="e.g. Remote, London, USA">
-                </label>
-                <label>
-                    Job type
-                    <select id="typeFilter">
-                        <option value="all">All</option>
-                        <option value="Full-time">Full-time</option>
-                        <option value="Part-time">Part-time</option>
-                        <option value="Contract">Contract</option>
-                        <option value="Internship">Internship</option>
-                    </select>
-                </label>
-                <label>
-                    Remote
-                    <select id="remoteFilter">
-                        <option value="all">All</option>
-                        <option value="Fully Remote">Fully Remote</option>
-                        <option value="Remote">Remote</option>
-                        <option value="Hybrid">Hybrid</option>
-                        <option value="Onsite">Onsite</option>
-                    </select>
-                </label>
-                <label>
-                    Experience
-                    <select id="experienceFilter">
-                        <option value="all">All</option>
-                        <option value="Entry">Entry</option>
-                        <option value="Mid">Mid</option>
-                        <option value="Senior">Senior</option>
-                    </select>
-                </label>
-                <label>
-                    Category
-                    <select id="categoryFilter">
-                        <option value="all">All</option>
-                        <option value="Engineering">Engineering</option>
-                        <option value="Data">Data</option>
-                        <option value="Product">Product</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Sales">Sales</option>
-                        <option value="Human Resources">Human Resources</option>
-                        <option value="Customer Support">Customer Support</option>
-                        <option value="Design">Design</option>
-                        <option value="Quality Assurance">Quality Assurance</option>
-                        <option value="Security">Security</option>
-                        <option value="Legal">Legal</option>
-                        <option value="Writing">Writing</option>
-                        <option value="Operations">Operations</option>
-                        <option value="Business">Business</option>
-                    </select>
-                </label>
-                <button id="clearFilters">Clear filters</button>
-            </div>
-            <div class="stats-panel">
-                <div class="result-summary">
-                    <p id="resultsCount">0 jobs found</p>
-                    <p id="currentQuery">Enter a search term or use filters.</p>
+
+    <main class="site-main">
+        <section class="hero-panel">
+            <div class="hero-search-card">
+                <p class="hero-label">Search official jobs and company career pages</p>
+                <div class="search-field hero-search-field">
+                    <input id="searchInput" type="search" placeholder="Example: software engineer remote" aria-label="Search jobs">
+                    <button id="searchButton" class="primary-button">Search</button>
                 </div>
-                <div class="pagination-top" id="paginationTop"></div>
+                <div class="hero-examples">
+                    <span>Try:</span>
+                    <button type="button" class="example-button" data-query="software engineer">software engineer</button>
+                    <button type="button" class="example-button" data-query="product manager">product manager</button>
+                    <button type="button" class="example-button" data-query="data analyst">data analyst</button>
+                    <button type="button" class="example-button" data-query="remote developer">remote developer</button>
+                </div>
             </div>
         </section>
 
-        <section class="results-panel">
-            <div id="results"></div>
-            <div class="pagination-bottom" id="paginationBottom"></div>
+        <section class="results-shell">
+            <section class="panel content">
+                <div class="search-summary">
+                    <p id="resultsCount">Start by searching official job listings.</p>
+                    <p id="currentQuery">Enter a query above to see fresh listings and apply pages.</p>
+                </div>
+                <div id="results" class="results-list"></div>
+                <div class="pagination" id="paginationBottom"></div>
+            </section>
         </section>
     </main>
 
     <footer class="site-footer">
-        <p>Open source job search — built for global talent discovery.</p>
+        <p>JobScout Search surfaces official career pages and direct apply links from public employer sites.</p>
     </footer>
 
     <script src="script.js"></script>
 </body>
 </html>
-

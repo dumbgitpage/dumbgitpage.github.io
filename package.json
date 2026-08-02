@@ -1,0 +1,13 @@
+{
+  "name": "global-job-search-engine",
+  "version": "1.0.0",
+  "description": "Local AI-powered job search engine with live web search results.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "express": "^4.18.2"
+  }
+}

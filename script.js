@@ -1,251 +1,183 @@
 const RESULTS_PER_PAGE = 8;
-
-let jobs = [];
-let filteredJobs = [];
 let currentPage = 1;
+let searchResults = [];
 
 const searchInput = document.getElementById('searchInput');
 const searchButton = document.getElementById('searchButton');
-const locationFilter = document.getElementById('locationFilter');
-const typeFilter = document.getElementById('typeFilter');
-const remoteFilter = document.getElementById('remoteFilter');
-const experienceFilter = document.getElementById('experienceFilter');
-const categoryFilter = document.getElementById('categoryFilter');
-const clearFiltersButton = document.getElementById('clearFilters');
+const exampleButtons = document.querySelectorAll('.example-button');
 const resultsCount = document.getElementById('resultsCount');
 const currentQuery = document.getElementById('currentQuery');
 const resultsContainer = document.getElementById('results');
-const paginationTop = document.getElementById('paginationTop');
 const paginationBottom = document.getElementById('paginationBottom');
 
-function fetchJobs() {
-    return fetch('jobs.json')
-        .then(response => response.json())
-        .then(data => {
-            jobs = data;
-            filteredJobs = jobs;
-            render();
-        })
-        .catch(error => {
-            resultsContainer.innerHTML = '<p class="error-message">Unable to load jobs. Please try again later.</p>';
-            console.error('Error loading jobs.json:', error);
-        });
+async function performSearch(queryValue) {
+  const query = queryValue !== undefined ? queryValue : searchInput.value.trim();
+  if (!query) {
+    showEmptyState('Enter a search term to begin searching official job listings.');
+    return;
+  }
+
+  currentPage = 1;
+  resultsCount.textContent = 'Searching…';
+  currentQuery.textContent = `Looking for official job listings for "${query}"`;
+  resultsContainer.innerHTML = '<p class="result-snippet">Searching live job sources…</p>';
+
+  try {
+    const results = await fetchSearchResults(query);
+    searchResults = results;
+    render(query);
+  } catch (error) {
+    console.error('Search failed:', error);
+    showError('Search failed. Please try again later.');
+  }
 }
 
-function normalizeText(text) {
-    return text?.toString().trim().toLowerCase() || '';
+function updateSummary(query) {
+  resultsCount.textContent = `${searchResults.length.toLocaleString()} result${searchResults.length === 1 ? '' : 's'} found`;
+  currentQuery.textContent = `Showing results for "${query}"`;
 }
 
-function buildSearchTokens(query) {
-    const normalized = normalizeText(query);
-    if (!normalized) return [];
-    return normalized.split(/\s+/).filter(Boolean);
+function showEmptyState(message) {
+  searchResults = [];
+  currentPage = 1;
+  resultsCount.textContent = '0 results found';
+  currentQuery.textContent = message;
+  resultsContainer.innerHTML = '<p class="result-snippet">' + escapeHtml(message) + '</p>';
+  paginationBottom.innerHTML = '';
 }
 
-function scoreJob(job, tokens) {
-    if (!tokens.length) return 0;
-
-    const title = normalizeText(job.title);
-    const company = normalizeText(job.company);
-    const location = normalizeText(job.location);
-    const description = normalizeText(job.description);
-    const category = normalizeText(job.category);
-    const tags = (job.tags || []).map(normalizeText).join(' ');
-    const remote = normalizeText(job.remote);
-
-    let score = 0;
-    tokens.forEach(token => {
-        if (title.includes(token)) score += 12;
-        if (company.includes(token)) score += 10;
-        if (description.includes(token)) score += 6;
-        if (tags.includes(token)) score += 8;
-        if (category.includes(token)) score += 6;
-        if (location.includes(token)) score += 4;
-        if (remote.includes(token)) score += 2;
-
-        if (title.startsWith(token)) score += 5;
-        if (job.title.toLowerCase() === token) score += 8;
-    });
-
-    return score;
+function showError(message) {
+  searchResults = [];
+  currentPage = 1;
+  resultsCount.textContent = '0 results found';
+  currentQuery.textContent = message;
+  resultsContainer.innerHTML = '<p class="result-snippet">' + escapeHtml(message) + '</p>';
+  paginationBottom.innerHTML = '';
 }
 
-function applyFilters() {
-    const searchTerm = normalizeText(searchInput.value);
-    const locationTerm = normalizeText(locationFilter.value);
-    const typeValue = typeFilter.value;
-    const remoteValue = remoteFilter.value;
-    const experienceValue = experienceFilter.value;
-    const categoryValue = categoryFilter.value;
-    const tokens = buildSearchTokens(searchTerm);
+async function fetchSearchResults(query) {
+  const params = new URLSearchParams({
+    q: query,
+  });
 
-    filteredJobs = jobs
-        .map(job => {
-            const score = scoreJob(job, tokens);
-            return { job, score };
-        })
-        .filter(({ job, score }) => {
-            if (searchTerm && score === 0) return false;
-            if (locationTerm) {
-                const locationMatch = normalizeText(job.location).includes(locationTerm);
-                const remoteMatch = normalizeText(job.remote).includes(locationTerm);
-                if (!locationMatch && !remoteMatch) return false;
-            }
-            if (typeValue !== 'all' && job.type !== typeValue) return false;
-            if (remoteValue !== 'all' && job.remote !== remoteValue) return false;
-            if (experienceValue !== 'all' && job.experience !== experienceValue) return false;
-            if (categoryValue !== 'all' && job.category !== categoryValue) return false;
-            return true;
-        })
-        .sort((a, b) => {
-            if (b.score !== a.score) return b.score - a.score;
-            return a.job.title.localeCompare(b.job.title);
-        })
-        .map(({ job }) => job);
+  const response = await fetch(`/api/search?${params.toString()}`);
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    throw new Error(errorBody.error || 'Network error');
+  }
 
-    currentPage = 1;
-    render();
+  const payload = await response.json();
+  return payload.results || [];
 }
 
-function render() {
-    const totalJobs = filteredJobs.length;
-    const pageCount = Math.max(1, Math.ceil(totalJobs / RESULTS_PER_PAGE));
-    currentPage = Math.min(currentPage, pageCount);
+function render(query) {
+  const totalResults = searchResults.length;
+  const pageCount = Math.max(1, Math.ceil(totalResults / RESULTS_PER_PAGE));
+  currentPage = Math.min(currentPage, pageCount);
 
-    const startIndex = (currentPage - 1) * RESULTS_PER_PAGE;
-    const endIndex = startIndex + RESULTS_PER_PAGE;
-    const jobsToRender = filteredJobs.slice(startIndex, endIndex);
+  const startIndex = (currentPage - 1) * RESULTS_PER_PAGE;
+  const endIndex = startIndex + RESULTS_PER_PAGE;
+  const pageResults = searchResults.slice(startIndex, endIndex);
 
-    resultsCount.textContent = `${totalJobs.toLocaleString()} job${totalJobs === 1 ? '' : 's'} found`;
+  updateSummary(query);
 
-    const queryText = searchInput.value.trim();
-    currentQuery.textContent = queryText
-        ? `Showing results for "${queryText}"` : 'Showing all available jobs. Use filters to refine.';
+  resultsContainer.innerHTML = pageResults.length
+    ? pageResults.map(buildResultCard).join('')
+    : '<p class="result-snippet">No official job pages found. Try another query or adjust your search.</p>';
 
-    resultsContainer.innerHTML = jobsToRender.length
-        ? jobsToRender.map(buildJobCard).join('')
-        : '<p class="empty-state">No matching jobs found. Try a broader search or remove a filter.</p>';
-
-    renderPagination(pageCount);
+  renderPagination(pageCount);
 }
 
-function buildJobCard(job) {
-    return `
-        <article class="job-card">
-            <div class="job-card-header">
-                <div>
-                    <h3>${job.title}</h3>
-                    <p class="job-company">${job.company}</p>
-                </div>
-                <div class="badges">
-                    <span class="badge">${job.remote}</span>
-                    <span class="badge">${job.type}</span>
-                </div>
-            </div>
-            <div class="job-meta">
-                <span>📍 ${job.location}</span>
-                <span>⭐ ${job.experience}</span>
-                <span>💼 ${job.category}</span>
-                <span>💰 ${job.salary}</span>
-            </div>
-            <p class="job-description">${job.description}</p>
-            <a class="apply-link" href="${job.applyUrl}" target="_blank" rel="noreferrer noopener">Apply now</a>
-        </article>
-    `;
+function buildResultCard(result) {
+  const detailLink = `job-detail.html?url=${encodeURIComponent(result.link)}&title=${encodeURIComponent(result.title)}`;
+  const typeLabel = result.isJobPage ? 'Job listing' : 'Related page';
+
+  const careerLabel = result.careerPage ? `From ${escapeHtml(result.sourceName)} career page` : '';
+  return `
+    <article class="result-card">
+      <div class="result-card-top">
+        <div>
+          <h3><a class="result-link" href="${detailLink}">${escapeHtml(result.title || 'Untitled result')}</a></h3>
+          <p class="result-source">${escapeHtml(result.sourceName || result.source || 'official source')}</p>
+          ${careerLabel ? `<p class="result-snippet">${careerLabel}</p>` : ''}
+        </div>
+        <span class="tag">${escapeHtml(typeLabel)}</span>
+      </div>
+      <p class="result-snippet">${escapeHtml(result.snippet || 'Live web search result from the open internet.')}</p>
+      <div class="result-actions">
+        <a class="visit-button" href="${detailLink}">View details</a>
+        <span class="result-source">${escapeHtml(result.link)}</span>
+      </div>
+    </article>
+  `;
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 function renderPagination(pageCount) {
-    paginationTop.innerHTML = '';
-    paginationBottom.innerHTML = '';
+  paginationBottom.innerHTML = '';
+  if (pageCount <= 1) return;
 
-    if (pageCount <= 1) return;
+  const buttons = [];
+  const startPage = Math.max(1, currentPage - 2);
+  const endPage = Math.min(pageCount, currentPage + 2);
 
-    const paginationMarkup = createPaginationMarkup(pageCount);
-    paginationTop.innerHTML = paginationMarkup;
-    paginationBottom.innerHTML = paginationMarkup;
+  buttons.push(`<button class="page-button" data-action="prev" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>`);
 
-    attachPaginationEvents();
-}
+  if (startPage > 1) {
+    buttons.push(`<button class="page-number" data-page="1">1</button>`);
+    if (startPage > 2) buttons.push(`<span class="page-number">…</span>`);
+  }
 
-function createPaginationMarkup(pageCount) {
-    const pageButtons = [];
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(pageCount, currentPage + 2);
+  for (let page = startPage; page <= endPage; page += 1) {
+    buttons.push(`<button class="page-number ${page === currentPage ? 'active' : ''}" data-page="${page}">${page}</button>`);
+  }
 
-    pageButtons.push(`<button class="page-button" data-action="prev" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>`);
+  if (endPage < pageCount) {
+    if (endPage < pageCount - 1) buttons.push(`<span class="page-number">…</span>`);
+    buttons.push(`<button class="page-number" data-page="${pageCount}">${pageCount}</button>`);
+  }
 
-    if (startPage > 1) {
-        pageButtons.push(`<button class="page-number" data-page="1">1</button>`);
-        if (startPage > 2) {
-            pageButtons.push(`<span class="page-number">…</span>`);
-        }
-    }
-
-    for (let page = startPage; page <= endPage; page += 1) {
-        pageButtons.push(
-            `<button class="page-number ${page === currentPage ? 'active' : ''}" data-page="${page}">${page}</button>`
-        );
-    }
-
-    if (endPage < pageCount) {
-        if (endPage < pageCount - 1) {
-            pageButtons.push(`<span class="page-number">…</span>`);
-        }
-        pageButtons.push(`<button class="page-number" data-page="${pageCount}">${pageCount}</button>`);
-    }
-
-    pageButtons.push(`<button class="page-button" data-action="next" ${currentPage === pageCount ? 'disabled' : ''}>Next</button>`);
-
-    return pageButtons.join('');
+  buttons.push(`<button class="page-button" data-action="next" ${currentPage === pageCount ? 'disabled' : ''}>Next</button>`);
+  paginationBottom.innerHTML = buttons.join('');
+  attachPaginationEvents();
 }
 
 function attachPaginationEvents() {
-    const pageButtons = [...paginationTop.querySelectorAll('[data-page], [data-action]'), ...paginationBottom.querySelectorAll('[data-page], [data-action]')];
-
-    pageButtons.forEach(button => {
-        button.addEventListener('click', event => {
-            const action = event.currentTarget.dataset.action;
-            const page = Number(event.currentTarget.dataset.page);
-
-            if (action === 'prev' && currentPage > 1) {
-                currentPage -= 1;
-            } else if (action === 'next' && currentPage < Math.ceil(filteredJobs.length / RESULTS_PER_PAGE)) {
-                currentPage += 1;
-            } else if (page) {
-                currentPage = page;
-            }
-
-            render();
-        });
+  const buttons = [...paginationBottom.querySelectorAll('[data-page], [data-action]')];
+  buttons.forEach(button => {
+    button.addEventListener('click', event => {
+      const action = event.currentTarget.dataset.action;
+      const page = Number(event.currentTarget.dataset.page);
+      if (action === 'prev' && currentPage > 1) currentPage -= 1;
+      else if (action === 'next' && currentPage < Math.ceil(searchResults.length / RESULTS_PER_PAGE)) currentPage += 1;
+      else if (page) currentPage = page;
+      render(searchInput.value.trim() || '');
     });
+  });
 }
 
 function bindEvents() {
-    searchButton.addEventListener('click', applyFilters);
-    searchInput.addEventListener('keydown', event => {
-        if (event.key === 'Enter') {
-            applyFilters();
-        }
-    });
-    locationFilter.addEventListener('input', applyFilters);
-    typeFilter.addEventListener('change', applyFilters);
-    remoteFilter.addEventListener('change', applyFilters);
-    experienceFilter.addEventListener('change', applyFilters);
-    categoryFilter.addEventListener('change', applyFilters);
-    clearFiltersButton.addEventListener('click', () => {
-        searchInput.value = '';
-        locationFilter.value = '';
-        typeFilter.value = 'all';
-        remoteFilter.value = 'all';
-        experienceFilter.value = 'all';
-        categoryFilter.value = 'all';
-        applyFilters();
-    });
+  searchButton.addEventListener('click', () => performSearch());
+  searchInput.addEventListener('keydown', event => {
+    if (event.key === 'Enter') performSearch();
+  });
+
+  exampleButtons.forEach(button => {
+    button.addEventListener('click', () => performSearch(button.dataset.query));
+  });
 }
 
 function initialize() {
-    bindEvents();
-    fetchJobs();
+  bindEvents();
+  showEmptyState('Enter a search term to begin searching official job listings.');
 }
 
 document.addEventListener('DOMContentLoaded', initialize);
