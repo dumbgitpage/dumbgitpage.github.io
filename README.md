@@ -1,51 +1,48 @@
-# Global Job Search Engine
+# JobScout Search
 
-A static website built to search job postings from a JSON dataset. The site supports keyword search, filters, and pagination without hardcoded job cards.
+JobScout Search is a local AI-backed job search engine that finds live job listings and official career pages using open web search results.
 
 ## Features
 
-- dynamic search from `jobs.json`
-- filter by location, job type, remote mode, experience, and category
-- result ranking by relevance
-- pagination for search results
-- responsive job search interface
+- live search using open HTML search results
+- job link heuristics to focus on official career pages and apply links
+- filters for location, job type, remote status, experience and category
+- AI ranking endpoint support with a fallback local ranking model
+- clean SEO-friendly title and description
+
+## Setup
+
+```bash
+npm install
+npm start
+```
+
+Open the app in your browser at the host and port configured for your environment.
+
+## Environment
+
+This project supports an open-source search backend via the `SEARCH_ENGINE_ENDPOINT` environment variable. Set it to a compatible public or self-hosted search service, for example:
+
+```bash
+export SEARCH_ENGINE_ENDPOINT="https://searx.example.com/search"
+```
+
+If no endpoint is provided, the app defaults to `https://searx.be/search`.
 
 ## How it works
 
-- `index.html` contains the search UI and filter controls
-- `styles.css` contains the site styling
-- `script.js` loads `jobs.json`, applies filters, computes relevance, and renders paginated results
-- `jobs.json` contains the job postings data
+- `index.html` contains the search-first homepage and results experience
+- `script.js` calls `/api/search` for live job search results and uses a detail page link
+- `job-detail.html` fetches listing details from `/api/job-detail` and renders available fields dynamically
+- `server.js` scrapes search results, filters job-specific links, ranks them, and proxies job detail requests
+- if `LOCAL_AI_ENDPOINT` is configured, the server forwards results to that AI service
 
-## Usage
+## Production
 
-1. Open `index.html` in a browser.
-2. Type keywords in the search box.
-3. Use filter controls to refine by location, type, remote style, experience or category.
-4. Click `Search` or press Enter.
-5. Browse results with pagination.
-
-## Deploying
-
-This site is ready for GitHub Pages or any static host.
-
-## Extending the dataset
-
-Add or update records within `jobs.json` to expand job coverage. Each record should include:
-
-- `id`
-- `title`
-- `company`
-- `location`
-- `remote`
-- `type`
-- `experience`
-- `category`
-- `salary`
-- `description`
-- `applyUrl`
-- `tags`
+This app is ready to run behind a production web server or reverse proxy. Use `PORT` to configure the listening port, and set `SEARCH_ENGINE_ENDPOINT` to a self-hosted or public open-source search endpoint for stable job search results.
 
 ## Notes
 
-If the browser blocks local file loading, use a local static server such as `Live Server`, `python -m http.server`, or host on GitHub Pages.
+- This implementation avoids hardcoded job data and JSON datasets for live results.
+- The site is designed for official job and careers pages, not company about pages.
+- Use a real local AI endpoint with `LOCAL_AI_ENDPOINT` if you want advanced model-driven ranking.
