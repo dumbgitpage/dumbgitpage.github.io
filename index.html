@@ -3,30 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baghels' Job Portal</title>
+    <title>Global Job Search Engine</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Baghels' Job Portal</h1>
+    <header class="site-header">
+        <div class="header-content">
+            <div>
+                <p class="eyebrow">Open Source AI Job Search</p>
+                <h1>Search jobs worldwide</h1>
+                <p class="subtext">Find the best remote, hybrid and local job opportunities with smart search, filters and pagination.</p>
+            </div>
+            <div class="search-box">
+                <input id="searchInput" type="search" placeholder="Search jobs, titles, skills, companies..." aria-label="Search jobs">
+                <button id="searchButton">Search</button>
+            </div>
+        </div>
     </header>
-    <main>
-        <section class="job-details">
-            <h2 class="job-title">Software Developer</h2>
-            <div class="details">
-                <p><strong>Age:</strong> 25-35 years</p>
-                <p><strong>Qualification/Degree:</strong> Bachelor's in Computer Science or equivalent</p>
-                <p><strong>Experience:</strong> 2-5 years in software development</p>
-                <div class="links">
-                    <a href="https://example.com/job" target="_blank">View Job</a>
-                    <a href="https://example.com/notification" target="_blank">View Notification</a>
+    <main class="page-main">
+        <section class="controls-panel">
+            <div class="filter-card">
+                <h2>Filters</h2>
+                <label>
+                    Location
+                    <input id="locationFilter" type="text" placeholder="e.g. Remote, London, USA">
+                </label>
+                <label>
+                    Job type
+                    <select id="typeFilter">
+                        <option value="all">All</option>
+                        <option value="Full-time">Full-time</option>
+                        <option value="Part-time">Part-time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Internship">Internship</option>
+                    </select>
+                </label>
+                <label>
+                    Remote
+                    <select id="remoteFilter">
+                        <option value="all">All</option>
+                        <option value="Fully Remote">Fully Remote</option>
+                        <option value="Remote">Remote</option>
+                        <option value="Hybrid">Hybrid</option>
+                        <option value="Onsite">Onsite</option>
+                    </select>
+                </label>
+                <label>
+                    Experience
+                    <select id="experienceFilter">
+                        <option value="all">All</option>
+                        <option value="Entry">Entry</option>
+                        <option value="Mid">Mid</option>
+                        <option value="Senior">Senior</option>
+                    </select>
+                </label>
+                <label>
+                    Category
+                    <select id="categoryFilter">
+                        <option value="all">All</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Data">Data</option>
+                        <option value="Product">Product</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Human Resources">Human Resources</option>
+                        <option value="Customer Support">Customer Support</option>
+                        <option value="Design">Design</option>
+                        <option value="Quality Assurance">Quality Assurance</option>
+                        <option value="Security">Security</option>
+                        <option value="Legal">Legal</option>
+                        <option value="Writing">Writing</option>
+                        <option value="Operations">Operations</option>
+                        <option value="Business">Business</option>
+                    </select>
+                </label>
+                <button id="clearFilters">Clear filters</button>
+            </div>
+            <div class="stats-panel">
+                <div class="result-summary">
+                    <p id="resultsCount">0 jobs found</p>
+                    <p id="currentQuery">Enter a search term or use filters.</p>
                 </div>
+                <div class="pagination-top" id="paginationTop"></div>
             </div>
         </section>
+
+        <section class="results-panel">
+            <div id="results"></div>
+            <div class="pagination-bottom" id="paginationBottom"></div>
+        </section>
     </main>
-    <footer>
-        <p>Made by Baghel Bros</p>
+
+    <footer class="site-footer">
+        <p>Open source job search — built for global talent discovery.</p>
     </footer>
+
     <script src="script.js"></script>
 </body>
 </html>
